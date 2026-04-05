@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Car Rental Platform</title>
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom design system overrides -->
+    <style>
+      /* Design System - Override Tailwind defaults */
+      :root {
+        /* Primary colors */
+        --primary: #D97706;
+        --primary-hover: #B45309;
+        --primary-light: #FEF3C7;
+        --primary-text: #92400E;
+        
+        /* Backgrounds */
+        --bg-base: #F9F8F6;
+        --bg-surface: #FFFFFF;
+        --bg-subtle: #F3F2EE;
+        
+        /* Text */
+        --text-primary: #1A1A1A;
+        --text-secondary: #52525B;
+        --text-muted: #A1A1AA;
+        
+        /* Borders */
+        --border: #E4E4E7;
+        --border-focus: #D97706;
+        
+        /* Status colors */
+        --status-pending-bg: #FEF3C7;
+        --status-pending-text: #92400E;
+        --status-approved-bg: #DCFCE7;
+        --status-approved-text: #166534;
+        --status-rejected-bg: #FEE2E2;
+        --status-rejected-text: #991B1B;
+        --status-completed-bg: #DBEAFE;
+        --status-completed-text: #1E40AF;
+        --status-cancelled-bg: #F4F4F5;
+        --status-cancelled-text: #71717A;
+        --status-review-bg: #F3E8FF;
+        --status-review-text: #6B21A8;
+        
+        /* Shadows */
+        --shadow-soft: 0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+        --shadow-medium: 0 4px 16px rgba(0,0,0,0.10);
+        --shadow-strong: 0 8px 32px rgba(0,0,0,0.14);
+      }
+      
+      * {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      }
+      
+      body {
+        background-color: var(--bg-base);
+        color: var(--text-primary);
+      }
+      
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background: var(--bg-subtle);
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background: var(--text-muted);
+        border-radius: 4px;
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-secondary);
+      }
+      
+      /* Focus ring - accessible */
+      *:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+      }
+      
+      /* Smooth transitions */
+      button, a, input, select, textarea {
+        transition: all 0.2s ease;
+      }
+    </style>
+    
+    <!-- Custom CSS classes for design tokens not in CDN Tailwind -->
+    <style>
+      /* Custom utility classes for our design system */
+      .shadow-soft { box-shadow: var(--shadow-soft); }
+      .shadow-medium { box-shadow: var(--shadow-medium); }
+      .shadow-strong { box-shadow: var(--shadow-strong); }
+      
+      .bg-primary { background-color: var(--primary); }
+      .bg-primary-light { background-color: var(--primary-light); }
+      .bg-base { background-color: var(--bg-base); }
+      .bg-surface { background-color: var(--bg-surface); }
+      .bg-subtle { background-color: var(--bg-subtle); }
+      
+      .text-primary { color: var(--text-primary); }
+      .text-secondary { color: var(--text-secondary); }
+      .text-muted { color: var(--text-muted); }
+      
+      .border-custom { border-color: var(--border); }
+      .border-focus { border-color: var(--border-focus); }
+      
+      /* Card styles */
+      .card {
+        background-color: var(--bg-surface);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: var(--shadow-soft);
+      }
+      
+      .card-info {
+        border-left: 4px solid var(--primary);
+      }
+      
+      /* Button styles */
+      .btn-primary {
+        background-color: var(--primary);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+      }
+      
+      .btn-secondary {
+        background-color: white;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .btn-secondary:hover {
+        background-color: var(--primary-light);
+      }
+      
+      .btn-ghost {
+        background-color: transparent;
+        color: var(--text-secondary);
+        border: 1px solid var(--border);
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .btn-ghost:hover {
+        background-color: var(--bg-subtle);
+      }
+      
+      .btn-danger {
+        background-color: #DC2626;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .btn-danger:hover {
+        background-color: #B91C1C;
+      }
+      
+      /* Form inputs */
+      .input-field {
+        width: 100%;
+        padding: 10px 12px;
+        background-color: var(--bg-subtle);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.2s;
+      }
+      .input-field:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+      }
+      .input-field.error {
+        border-color: #DC2626;
+      }
+      * {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      }
+      
+      body {
+        background-color: #F9F8F6;
+      }
+      
+      /* Smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+      }
+      
+      
+      /* Badges */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+        gap: 6px;
+      }
+      .badge-pending { background-color: var(--status-pending-bg); color: var(--status-pending-text); }
+      .badge-approved { background-color: var(--status-approved-bg); color: var(--status-approved-text); }
+      .badge-rejected { background-color: var(--status-rejected-bg); color: var(--status-rejected-text); }
+      .badge-completed { background-color: var(--status-completed-bg); color: var(--status-completed-text); }
+      .badge-cancelled { background-color: var(--status-cancelled-bg); color: var(--status-cancelled-text); }
+      .badge-review { background-color: var(--status-review-bg); color: var(--status-review-text); }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
