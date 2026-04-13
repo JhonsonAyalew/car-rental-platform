@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
-import './i18n'; // ⚠️ IMPORTANT: Add this line to initialize translations
+import './i18n'; // Import i18n
 import App from './App';
 import Spinner from './components/ui/Spinner';
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { toast, Toaster } from 'react-hot-toast';
 import {
@@ -25,6 +26,7 @@ import Input from '../../components/ui/Input';
 import Spinner from '../../components/ui/Spinner';
 
 const BookingsPage = () => {
+  const { t } = useTranslation('bookings');
   const [bookings, setBookings] = useState([]);
   const [filteredBookings, setFilteredBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -133,19 +135,19 @@ const BookingsPage = () => {
 
   const getStatusBadge = (status) => {
     const badges = {
-      confirmed: <Badge variant="approved">✓ Confirmed</Badge>,
-      pending: <Badge variant="pending">⏳ Pending</Badge>,
-      completed: <Badge variant="completed">✓ Completed</Badge>,
-      cancelled: <Badge variant="cancelled">✗ Cancelled</Badge>
+      confirmed: <Badge variant="approved">✓ {t('status.confirmed')}</Badge>,
+      pending: <Badge variant="pending">⏳ {t('status.pending')}</Badge>,
+      completed: <Badge variant="completed">✓ {t('status.completed')}</Badge>,
+      cancelled: <Badge variant="cancelled">✗ {t('status.cancelled')}</Badge>
     };
     return badges[status];
   };
 
   const getPaymentBadge = (status) => {
     const badges = {
-      paid: <Badge variant="approved">Paid</Badge>,
-      pending: <Badge variant="pending">Pending</Badge>,
-      refunded: <Badge variant="cancelled">Refunded</Badge>
+      paid: <Badge variant="approved">{t('paymentStatus.paid')}</Badge>,
+      pending: <Badge variant="pending">{t('paymentStatus.pending')}</Badge>,
+      refunded: <Badge variant="cancelled">{t('paymentStatus.refunded')}</Badge>
     };
     return badges[status];
   };
@@ -155,7 +157,7 @@ const BookingsPage = () => {
       booking.id === bookingId ? { ...booking, status: newStatus } : booking
     );
     setBookings(updatedBookings);
-    toast.success(`Booking ${newStatus} successfully!`);
+    toast.success(`${t('messages.statusUpdated')} ${t(`status.${newStatus}`)} ${t('messages.successfully')}`);
   };
 
   const stats = {
@@ -181,16 +183,16 @@ const BookingsPage = () => {
       
       <div className="flex flex-wrap justify-between items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">All Bookings</h1>
-          <p className="text-[#52525B] mt-1">Manage and track all rental bookings</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">{t('page.title')}</h1>
+          <p className="text-[#52525B] mt-1">{t('page.subtitle')}</p>
         </div>
         
         <div className="flex gap-3">
           <Button variant="ghost" iconLeft={<Download className="w-4 h-4" />}>
-            Export
+            {t('buttons.export')}
           </Button>
           <Button variant="ghost" iconLeft={<RefreshCw className="w-4 h-4" />} onClick={fetchBookings}>
-            Refresh
+            {t('buttons.refresh')}
           </Button>
         </div>
       </div>
@@ -198,23 +200,23 @@ const BookingsPage = () => {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card className="text-center">
           <p className="text-2xl font-bold text-[#1A1A1A]">{stats.total}</p>
-          <p className="text-sm text-[#52525B]">Total Bookings</p>
+          <p className="text-sm text-[#52525B]">{t('stats.totalBookings')}</p>
         </Card>
         <Card className="text-center">
           <p className="text-2xl font-bold text-[#D97706]">${stats.totalRevenue}</p>
-          <p className="text-sm text-[#52525B]">Total Revenue</p>
+          <p className="text-sm text-[#52525B]">{t('stats.totalRevenue')}</p>
         </Card>
         <Card className="text-center">
           <p className="text-2xl font-bold text-green-600">{stats.confirmed}</p>
-          <p className="text-sm text-[#52525B]">Confirmed</p>
+          <p className="text-sm text-[#52525B]">{t('stats.confirmed')}</p>
         </Card>
         <Card className="text-center">
           <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
-          <p className="text-sm text-[#52525B]">Pending</p>
+          <p className="text-sm text-[#52525B]">{t('stats.pending')}</p>
         </Card>
         <Card className="text-center">
           <p className="text-2xl font-bold text-blue-600">{stats.completed}</p>
-          <p className="text-sm text-[#52525B]">Completed</p>
+          <p className="text-sm text-[#52525B]">{t('stats.completed')}</p>
         </Card>
       </div>
 
@@ -222,7 +224,7 @@ const BookingsPage = () => {
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px]">
             <Input
-              placeholder="Search by ID, customer, or car..."
+              placeholder={t('filters.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               icon={<Search className="w-4 h-4" />}
@@ -234,11 +236,11 @@ const BookingsPage = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-2 border border-[#E4E4E7] rounded-lg bg-white"
           >
-            <option value="all">All Status</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="pending">Pending</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="all">{t('filters.allStatus')}</option>
+            <option value="confirmed">{t('filters.statusConfirmed')}</option>
+            <option value="pending">{t('filters.statusPending')}</option>
+            <option value="completed">{t('filters.statusCompleted')}</option>
+            <option value="cancelled">{t('filters.statusCancelled')}</option>
           </select>
           
           <select
@@ -246,10 +248,10 @@ const BookingsPage = () => {
             onChange={(e) => setDateRange(e.target.value)}
             className="px-3 py-2 border border-[#E4E4E7] rounded-lg bg-white"
           >
-            <option value="all">All Time</option>
-            <option value="today">Today</option>
-            <option value="week">Last 7 Days</option>
-            <option value="month">Last 30 Days</option>
+            <option value="all">{t('filters.allTime')}</option>
+            <option value="today">{t('filters.today')}</option>
+            <option value="week">{t('filters.last7Days')}</option>
+            <option value="month">{t('filters.last30Days')}</option>
           </select>
         </div>
       </Card>
@@ -276,7 +278,7 @@ const BookingsPage = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="w-3 h-3 text-[#52525B]" />
-                    <span>{booking.startDate} to {booking.endDate}</span>
+                    <span>{booking.startDate} {t('bookingCard.to')} {booking.endDate}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <DollarSign className="w-3 h-3 text-[#52525B]" />
@@ -291,18 +293,18 @@ const BookingsPage = () => {
                 <div className="flex flex-wrap gap-2">
                   {getPaymentBadge(booking.paymentStatus)}
                   <Button size="sm" variant="ghost" iconLeft={<Eye className="w-3 h-3" />}>
-                    View Details
+                    {t('bookingCard.viewDetails')}
                   </Button>
                   <Button size="sm" variant="ghost" iconLeft={<MessageSquare className="w-3 h-3" />}>
-                    Contact Customer
+                    {t('bookingCard.contactCustomer')}
                   </Button>
                   {booking.status === 'pending' && (
                     <>
                       <Button size="sm" onClick={() => handleUpdateStatus(booking.id, 'confirmed')}>
-                        Confirm
+                        {t('bookingCard.confirm')}
                       </Button>
                       <Button size="sm" variant="danger" onClick={() => handleUpdateStatus(booking.id, 'cancelled')}>
-                        Cancel
+                        {t('bookingCard.cancel')}
                       </Button>
                     </>
                   )}

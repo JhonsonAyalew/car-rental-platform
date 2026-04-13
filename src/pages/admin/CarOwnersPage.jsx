@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { toast, Toaster } from 'react-hot-toast';
 import {
@@ -27,6 +28,7 @@ import Input from '../../components/ui/Input';
 import Spinner from '../../components/ui/Spinner';
 
 const CarOwnersPage = () => {
+  const { t } = useTranslation('carOwners');
   const [owners, setOwners] = useState([]);
   const [filteredOwners, setFilteredOwners] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -151,7 +153,7 @@ const CarOwnersPage = () => {
       owner.id === ownerId ? { ...owner, verificationStatus: 'verified' } : owner
     );
     setOwners(updatedOwners);
-    toast.success('Owner verified successfully!');
+    toast.success(t('messages.ownerVerified'));
   };
 
   const stats = {
@@ -177,16 +179,16 @@ const CarOwnersPage = () => {
       
       <div className="flex flex-wrap justify-between items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">Car Owners</h1>
-          <p className="text-[#52525B] mt-1">Manage all car owners on the platform</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">{t('page.title')}</h1>
+          <p className="text-[#52525B] mt-1">{t('page.subtitle')}</p>
         </div>
         
         <div className="flex gap-3">
           <Button variant="ghost" iconLeft={<Download className="w-4 h-4" />}>
-            Export
+            {t('buttons.export')}
           </Button>
           <Button variant="ghost" iconLeft={<RefreshCw className="w-4 h-4" />} onClick={fetchOwners}>
-            Refresh
+            {t('buttons.refresh')}
           </Button>
         </div>
       </div>
@@ -194,23 +196,23 @@ const CarOwnersPage = () => {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card className="text-center">
           <p className="text-2xl font-bold text-[#1A1A1A]">{stats.total}</p>
-          <p className="text-sm text-[#52525B]">Total Owners</p>
+          <p className="text-sm text-[#52525B]">{t('stats.totalOwners')}</p>
         </Card>
         <Card className="text-center">
           <p className="text-2xl font-bold text-green-600">{stats.verified}</p>
-          <p className="text-sm text-[#52525B]">Verified</p>
+          <p className="text-sm text-[#52525B]">{t('stats.verified')}</p>
         </Card>
         <Card className="text-center">
           <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
-          <p className="text-sm text-[#52525B]">Pending</p>
+          <p className="text-sm text-[#52525B]">{t('stats.pending')}</p>
         </Card>
         <Card className="text-center">
           <p className="text-2xl font-bold text-[#D97706]">{stats.totalCars}</p>
-          <p className="text-sm text-[#52525B]">Total Cars</p>
+          <p className="text-sm text-[#52525B]">{t('stats.totalCars')}</p>
         </Card>
         <Card className="text-center">
           <p className="text-2xl font-bold text-[#D97706]">${(stats.totalRevenue / 1000).toFixed(0)}k</p>
-          <p className="text-sm text-[#52525B]">Total Revenue</p>
+          <p className="text-sm text-[#52525B]">{t('stats.totalRevenue')}</p>
         </Card>
       </div>
 
@@ -218,7 +220,7 @@ const CarOwnersPage = () => {
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px]">
             <Input
-              placeholder="Search by name, email, or business..."
+              placeholder={t('filters.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               icon={<Search className="w-4 h-4" />}
@@ -230,9 +232,9 @@ const CarOwnersPage = () => {
             onChange={(e) => setVerificationFilter(e.target.value)}
             className="px-3 py-2 border border-[#E4E4E7] rounded-lg bg-white text-[#1A1A1A] focus:outline-none focus:border-[#D97706]"
           >
-            <option value="all">All Owners</option>
-            <option value="verified">Verified</option>
-            <option value="pending">Pending Verification</option>
+            <option value="all">{t('filters.allOwners')}</option>
+            <option value="verified">{t('filters.verifiedOwners')}</option>
+            <option value="pending">{t('filters.pendingOwners')}</option>
           </select>
         </div>
       </Card>
@@ -257,7 +259,7 @@ const CarOwnersPage = () => {
                       <p className="text-sm text-[#52525B]">{owner.businessName}</p>
                     </div>
                     <Badge variant={owner.verificationStatus === 'verified' ? 'approved' : 'pending'}>
-                      {owner.verificationStatus === 'verified' ? '✓ Verified' : '⏳ Pending'}
+                      {owner.verificationStatus === 'verified' ? t('ownerCard.verified') : t('ownerCard.pending')}
                     </Badge>
                   </div>
                   
@@ -276,21 +278,21 @@ const CarOwnersPage = () => {
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3 text-[#52525B]" />
-                      <span>Joined {new Date(owner.joinedDate).toLocaleDateString()}</span>
+                      <span>{t('ownerCard.joinDate')} {new Date(owner.joinedDate).toLocaleDateString()}</span>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-3 gap-3 text-sm pt-3 border-t border-[#E4E4E7]">
                     <div>
-                      <p className="text-[#A1A1AA] text-xs">Cars Listed</p>
-                      <p className="font-semibold">{owner.totalCars} ({owner.approvedCars} approved)</p>
+                      <p className="text-[#A1A1AA] text-xs">{t('ownerCard.carsListed')}</p>
+                      <p className="font-semibold">{owner.totalCars} ({owner.approvedCars} {t('ownerCard.approved')})</p>
                     </div>
                     <div>
-                      <p className="text-[#A1A1AA] text-xs">Total Bookings</p>
+                      <p className="text-[#A1A1AA] text-xs">{t('ownerCard.totalBookings')}</p>
                       <p className="font-semibold">{owner.totalBookings}</p>
                     </div>
                     <div>
-                      <p className="text-[#A1A1AA] text-xs">Revenue</p>
+                      <p className="text-[#A1A1AA] text-xs">{t('ownerCard.revenue')}</p>
                       <p className="font-semibold text-[#D97706]">${owner.totalRevenue}</p>
                     </div>
                   </div>
@@ -301,11 +303,11 @@ const CarOwnersPage = () => {
                       <span>{owner.rating} ⭐</span>
                     </div>
                     <div className="flex items-center gap-1 text-sm">
-                      <span className="text-[#52525B]">Response Rate:</span>
+                      <span className="text-[#52525B]">{t('ownerCard.responseRate')}:</span>
                       <span>{owner.responseRate}%</span>
                     </div>
                     <div className="flex items-center gap-1 text-sm">
-                      <span className="text-[#52525B]">Response Time:</span>
+                      <span className="text-[#52525B]">{t('ownerCard.responseTime')}:</span>
                       <span>{owner.responseTime}</span>
                     </div>
                   </div>
@@ -313,16 +315,16 @@ const CarOwnersPage = () => {
                   <div className="flex gap-2 mt-3">
                     <Link to={`/admin/owners/${owner.id}`}>
                       <Button size="sm" variant="ghost" iconLeft={<Eye className="w-3 h-3" />}>
-                        View Details
+                        {t('ownerCard.viewDetails')}
                       </Button>
                     </Link>
                     {owner.verificationStatus === 'pending' && (
                       <Button size="sm" onClick={() => handleVerifyOwner(owner.id)} iconLeft={<Shield className="w-3 h-3" />}>
-                        Verify Owner
+                        {t('ownerCard.verifyOwner')}
                       </Button>
                     )}
                     <Button size="sm" variant="ghost" iconLeft={<Mail className="w-3 h-3" />}>
-                      Contact
+                      {t('ownerCard.contact')}
                     </Button>
                   </div>
                 </div>

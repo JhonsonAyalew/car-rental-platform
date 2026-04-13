@@ -1,52 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
-import LanguageSwitcher from '../../components/LanguageSwitcher';
 import {
   Search,
-  Car,
   Shield,
   Clock,
   Star,
   MapPin,
   Calendar,
-  DollarSign,
   ChevronRight,
-  TrendingUp,
   Award,
   Headphones,
   Key,
-  Fuel,
   Users,
-  Settings,
   ArrowRight,
   Play,
-  CheckCircle,
   Zap,
   Sparkles,
-  Globe,
-  Heart,
-  Share2,
+  HardHat,
+  Truck,
+  Factory,
+  Drill,
+  Gauge,
+  Fuel,
   Camera,
-  Navigation,
-  Battery,
   Wifi,
+  Battery,
   Coffee,
   Luggage,
-  Snowflake,
-  Phone
+  Snowflake
 } from 'lucide-react';
+
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
+import { useTranslation } from 'react-i18next';
 
 const HomePage = () => {
-  const { t } = useTranslation();
-  const [featuredCars, setFeaturedCars] = useState([]);
+  const { t } = useTranslation(['common', 'home']);
+
+  const [featuredEquipment, setFeaturedEquipment] = useState([]);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [mouseX, setMouseX] = useState(0);
   const [mouseY, setMouseY] = useState(0);
+
+  // Animated counter stats
+  const [counters, setCounters] = useState({
+    customers: 0,
+    equipment: 0,
+    cities: 0,
+    support: 0
+  });
 
   // Parallax effect for hero
   const x = useMotionValue(0);
@@ -68,67 +71,127 @@ const HomePage = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  // Animated counter effect
   useEffect(() => {
-    // Mock featured cars
-    const mockFeaturedCars = [
+    const targetCustomers = 15000;
+    const targetEquipment = 850;
+    const targetCities = 120;
+    const targetSupport = 24;
+   
+    const duration = 2000;
+    const stepTime = 20;
+    const steps = duration / stepTime;
+   
+    let currentStep = 0;
+   
+    const interval = setInterval(() => {
+      currentStep++;
+      const progress = currentStep / steps;
+     
+      setCounters({
+        customers: Math.min(Math.floor(targetCustomers * progress), targetCustomers),
+        equipment: Math.min(Math.floor(targetEquipment * progress), targetEquipment),
+        cities: Math.min(Math.floor(targetCities * progress), targetCities),
+        support: Math.min(Math.floor(targetSupport * progress), targetSupport)
+      });
+     
+      if (currentStep >= steps) {
+        clearInterval(interval);
+      }
+    }, stepTime);
+   
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // Mock featured construction equipment
+    const mockFeaturedEquipment = [
       {
         id: 1,
-        name: 'Tesla Model 3',
-        brand: 'Tesla',
-        price: 120,
+        name: 'CAT 320 Excavator',
+        brand: 'Caterpillar',
+        price: 8500,
+        hourlyRate: 1200,
         rating: 4.9,
-        image: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=500',
-        location: 'Los Angeles, CA',
-        transmission: 'Automatic',
-        seats: 5,
-        fuelType: 'Electric',
-        year: 2023,
-        featured: true
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhjQijEXK7zvAaspMZUERi3MJLmK1KmNYLE-iqM0GhRA&s=10',
+        location: 'Addis Ababa, Ethiopia',
+        type: 'Excavator',
+        attachment: 'Shovel',
+        weight: '20 tons',
+        featured: true,
       },
       {
         id: 2,
-        name: 'BMW X5',
-        brand: 'BMW',
-        price: 150,
+        name: 'SANY SY335 Excavator',
+        brand: 'SANY',
+        price: 7800,
+        hourlyRate: 1100,
         rating: 4.8,
-        image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=500',
-        location: 'New York, NY',
-        transmission: 'Automatic',
-        seats: 5,
-        fuelType: 'Petrol',
-        year: 2023,
-        featured: true
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhy9e8Ce4B33NOhAnf_ud0B5zuPhrjAM2-KPBjUKse80lSJawCfdlH9JBi&s=10',
+        location: 'Dire Dawa, Ethiopia',
+        type: 'Excavator',
+        attachment: 'Hammer',
+        weight: '33 tons',
+        featured: true,
       },
       {
         id: 3,
-        name: 'Mercedes C-Class',
-        brand: 'Mercedes',
-        price: 110,
+        name: 'CAT 950 Wheel Loader',
+        brand: 'Caterpillar',
+        price: 7200,
+        hourlyRate: 1000,
         rating: 4.9,
-        image: 'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=500',
-        location: 'Miami, FL',
-        transmission: 'Automatic',
-        seats: 5,
-        fuelType: 'Petrol',
-        year: 2022,
-        featured: true
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-CZdvnsdrhfl0HNQByq1RFe_nZLOoxwAf8BrvtjhBqw&s=10',
+        location: 'Hawassa, Ethiopia',
+        type: 'Loader',
+        attachment: 'Bucket',
+        weight: '25 tons',
+        featured: true,
       },
       {
         id: 4,
-        name: 'Toyota Camry',
-        brand: 'Toyota',
-        price: 65,
+        name: 'CAT 430 Backhoe Loader',
+        brand: 'Caterpillar',
+        price: 5500,
+        hourlyRate: 800,
         rating: 4.7,
-        image: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500',
-        location: 'Chicago, IL',
-        transmission: 'Automatic',
-        seats: 5,
-        fuelType: 'Hybrid',
-        year: 2022,
-        featured: true
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLFwNhYDEf8xKGGY6s92m03WMHpeFLneV6V2EbC9m9BQ&s',
+        location: 'Mekelle, Ethiopia',
+        type: 'Backhoe Loader',
+        attachment: 'Bucket + Backhoe',
+        weight: '9 tons',
+        featured: false,
+      },
+      {
+        id: 5,
+        name: 'Komatsu D65 Bulldozer',
+        brand: 'Komatsu',
+        price: 9000,
+        hourlyRate: 1300,
+        rating: 4.8,
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUq4zeRFFgxFYxHOghAjsGZqz6HB7MARd79lpTU5JDwQ&s=10',
+        location: 'Adama, Ethiopia',
+        type: 'Bulldozer',
+        attachment: 'Blade',
+        weight: '22 tons',
+        featured: true,
+      },
+      {
+        id: 6,
+        name: 'CAT 140M Motor Grader',
+        brand: 'Caterpillar',
+        price: 8000,
+        hourlyRate: 1150,
+        rating: 4.8,
+        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6U-WSl2JQr17KXXFcrdCV_WDoiCgiN1tmcJT5BKCDSQ&s=10',
+        location: 'Bahir Dar, Ethiopia',
+        type: 'Grader',
+        attachment: 'Blade',
+        weight: '15 tons',
+        featured: false,
       }
     ];
-    setFeaturedCars(mockFeaturedCars);
+    setFeaturedEquipment(mockFeaturedEquipment);
 
     // Auto-rotate testimonials
     const interval = setInterval(() => {
@@ -137,82 +200,222 @@ const HomePage = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Stats array with translations
   const stats = [
-    { value: '10K+', label: 'Happy Customers', icon: Users },
-    { value: '500+', label: 'Luxury Cars', icon: Car },
-    { value: '50+', label: 'Cities', icon: MapPin },
-    { value: '24/7', label: 'Support', icon: Headphones }
+    { value: counters.customers.toLocaleString() + '+', label: t('stats.customers', { ns: 'home' }), icon: Users },
+    { value: counters.equipment + '+', label: t('stats.equipment', { ns: 'home' }), icon: Truck },
+    { value: counters.cities + '+', label: t('stats.cities', { ns: 'home' }), icon: MapPin },
+    { value: counters.support + '/7', label: t('stats.support', { ns: 'home' }), icon: Headphones }
   ];
 
+  // Equipment categories with translations
+  const equipmentCategories = [
+    { 
+      icon: HardHat, 
+      title: t('categories.excavators.title', { ns: 'home' }), 
+      desc: t('categories.excavators.desc', { ns: 'home' }), 
+      color: '#D97706', 
+      count: t('categories.excavators.count', { ns: 'home' }) 
+    },
+    { 
+      icon: Truck, 
+      title: t('categories.loaders.title', { ns: 'home' }), 
+      desc: t('categories.loaders.desc', { ns: 'home' }), 
+      color: '#10B981', 
+      count: t('categories.loaders.count', { ns: 'home' }) 
+    },
+    { 
+      icon: Factory, 
+      title: t('categories.bulldozers.title', { ns: 'home' }), 
+      desc: t('categories.bulldozers.desc', { ns: 'home' }), 
+      color: '#3B82F6', 
+      count: t('categories.bulldozers.count', { ns: 'home' }) 
+    },
+    { 
+      icon: Drill, 
+      title: t('categories.graders.title', { ns: 'home' }), 
+      desc: t('categories.graders.desc', { ns: 'home' }), 
+      color: '#F59E0B', 
+      count: t('categories.graders.count', { ns: 'home' }) 
+    },
+    { 
+      icon: Gauge, 
+      title: t('categories.rollers.title', { ns: 'home' }), 
+      desc: t('categories.rollers.desc', { ns: 'home' }), 
+      color: '#EF4444', 
+      count: t('categories.rollers.count', { ns: 'home' }) 
+    },
+    { 
+      icon: Truck, 
+      title: t('categories.dumpTrucks.title', { ns: 'home' }), 
+      desc: t('categories.dumpTrucks.desc', { ns: 'home' }), 
+      color: '#06B6D4', 
+      count: t('categories.dumpTrucks.count', { ns: 'home' }) 
+    },
+    { 
+      icon: Fuel, 
+      title: t('categories.waterTrucks.title', { ns: 'home' }), 
+      desc: t('categories.waterTrucks.desc', { ns: 'home' }), 
+      color: '#84CC16', 
+      count: t('categories.waterTrucks.count', { ns: 'home' }) 
+    }
+  ];
+
+  // Features array with translations
   const features = [
-    { icon: Shield, title: 'Secure Booking', desc: 'Your payments and data are fully protected', color: '#D97706' },
-    { icon: Clock, title: '24/7 Support', desc: 'Round-the-clock customer assistance', color: '#10B981' },
-    { icon: Car, title: 'Wide Selection', desc: 'Choose from thousands of verified cars', color: '#3B82F6' },
-    { icon: Award, title: 'Best Prices', desc: 'Competitive rates with no hidden fees', color: '#8B5CF6' },
-    { icon: Zap, title: 'Instant Booking', desc: 'Get confirmed instantly', color: '#F59E0B' },
-    { icon: Shield, title: 'Full Insurance', desc: 'Comprehensive coverage included', color: '#EF4444' }
+    { 
+      icon: Shield, 
+      title: t('features.secure.title', { ns: 'home' }), 
+      desc: t('features.secure.desc', { ns: 'home' }), 
+      color: '#D97706' 
+    },
+    { 
+      icon: Clock, 
+      title: t('features.support.title', { ns: 'home' }), 
+      desc: t('features.support.desc', { ns: 'home' }), 
+      color: '#10B981' 
+    },
+    { 
+      icon: Truck, 
+      title: t('features.heavyEquipment.title', { ns: 'home' }), 
+      desc: t('features.heavyEquipment.desc', { ns: 'home' }), 
+      color: '#3B82F6' 
+    },
+    { 
+      icon: Award, 
+      title: t('features.bestPrices.title', { ns: 'home' }), 
+      desc: t('features.bestPrices.desc', { ns: 'home' }), 
+      color: '#8B5CF6' 
+    },
+    { 
+      icon: Zap, 
+      title: t('features.instantBooking.title', { ns: 'home' }), 
+      desc: t('features.instantBooking.desc', { ns: 'home' }), 
+      color: '#F59E0B' 
+    },
+    { 
+      icon: Shield, 
+      title: t('features.fullInsurance.title', { ns: 'home' }), 
+      desc: t('features.fullInsurance.desc', { ns: 'home' }), 
+      color: '#EF4444' 
+    }
   ];
 
+  // How it works steps with translations
   const howItWorks = [
-    { step: '01', icon: Search, title: 'Search', desc: 'Find your perfect car by location, date, and preferences' },
-    { step: '02', icon: Calendar, title: 'Book', desc: 'Select your dates and complete the secure booking' },
-    { step: '03', icon: Key, title: 'Drive', desc: 'Pick up the car and enjoy your journey' }
+    { 
+      step: '01', 
+      icon: Search, 
+      title: t('howItWorks.step1.title', { ns: 'home' }), 
+      desc: t('howItWorks.step1.desc', { ns: 'home' }) 
+    },
+    { 
+      step: '02', 
+      icon: Calendar, 
+      title: t('howItWorks.step2.title', { ns: 'home' }), 
+      desc: t('howItWorks.step2.desc', { ns: 'home' }) 
+    },
+    { 
+      step: '03', 
+      icon: Key, 
+      title: t('howItWorks.step3.title', { ns: 'home' }), 
+      desc: t('howItWorks.step3.desc', { ns: 'home' }) 
+    }
   ];
 
+  // Perks array with translations
   const perks = [
-    { icon: Camera, title: 'Free Cancellation', desc: 'Up to 24 hours before pickup' },
-    { icon: Wifi, title: 'WiFi Hotspot', desc: 'Stay connected on the go' },
-    { icon: Battery, title: '24/7 Roadside', desc: 'Emergency assistance anytime' },
-    { icon: Coffee, title: 'Free Coffee', desc: 'At all pickup locations' },
-    { icon: Luggage, title: 'Extra Luggage', desc: 'No additional fees' },
-    { icon: Snowflake, title: 'Climate Control', desc: 'Heated/Cooled seats' }
+    { 
+      icon: Camera, 
+      title: t('perks.freeCancellation.title', { ns: 'home' }), 
+      desc: t('perks.freeCancellation.desc', { ns: 'home' }) 
+    },
+    { 
+      icon: Wifi, 
+      title: t('perks.operatorAvailable.title', { ns: 'home' }), 
+      desc: t('perks.operatorAvailable.desc', { ns: 'home' }) 
+    },
+    { 
+      icon: Battery, 
+      title: t('perks.support247.title', { ns: 'home' }), 
+      desc: t('perks.support247.desc', { ns: 'home' }) 
+    },
+    { 
+      icon: Coffee, 
+      title: t('perks.fuelIncluded.title', { ns: 'home' }), 
+      desc: t('perks.fuelIncluded.desc', { ns: 'home' }) 
+    },
+    { 
+      icon: Luggage, 
+      title: t('perks.maintenance.title', { ns: 'home' }), 
+      desc: t('perks.maintenance.desc', { ns: 'home' }) 
+    },
+    { 
+      icon: Snowflake, 
+      title: t('perks.insurance.title', { ns: 'home' }), 
+      desc: t('perks.insurance.desc', { ns: 'home' }) 
+    }
+  ];
+
+  // Testimonials array with translations
+  const testimonials = [
+    { 
+      name: t('testimonials.testimonial1.name', { ns: 'home' }), 
+      role: t('testimonials.testimonial1.role', { ns: 'home' }), 
+      rating: 5, 
+      text: t('testimonials.testimonial1.text', { ns: 'home' }), 
+      avatar: 'https://randomuser.me/api/portraits/men/1.jpg' 
+    },
+    { 
+      name: t('testimonials.testimonial2.name', { ns: 'home' }), 
+      role: t('testimonials.testimonial2.role', { ns: 'home' }), 
+      rating: 5, 
+      text: t('testimonials.testimonial2.text', { ns: 'home' }), 
+      avatar: 'https://randomuser.me/api/portraits/women/1.jpg' 
+    },
+    { 
+      name: t('testimonials.testimonial3.name', { ns: 'home' }), 
+      role: t('testimonials.testimonial3.role', { ns: 'home' }), 
+      rating: 4, 
+      text: t('testimonials.testimonial3.text', { ns: 'home' }), 
+      avatar: 'https://randomuser.me/api/portraits/men/2.jpg' 
+    }
   ];
 
   return (
     <div className="overflow-hidden">
-      {/* Hero Section - Redesigned without search card */}
+      {/* Hero Section */}
       <section id="hero-section" className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Animated Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#D97706]/5 via-[#FEF3C7]/10 to-transparent" />
-        
+       
         {/* Animated Blobs */}
         <motion.div
           className="absolute top-20 left-10 w-72 h-72 bg-[#D97706]/20 rounded-full blur-3xl"
-          animate={{
-            x: [0, 100, 0],
-            y: [0, 50, 0],
-          }}
+          animate={{ x: [0, 100, 0], y: [0, 50, 0] }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         />
         <motion.div
           className="absolute bottom-20 right-10 w-96 h-96 bg-[#FEF3C7] rounded-full blur-3xl"
-          animate={{
-            x: [0, -80, 0],
-            y: [0, -60, 0],
-          }}
+          animate={{ x: [0, -80, 0], y: [0, -60, 0] }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
         />
-        
-        {/* Floating Cars Background */}
+       
+        {/* Floating Equipment Background */}
         <motion.div
           className="absolute top-1/4 right-10 opacity-10"
           animate={{ y: [0, -20, 0] }}
           transition={{ duration: 6, repeat: Infinity }}
         >
-          <Car size={120} className="text-[#D97706]" />
+          <Truck size={120} className="text-[#D97706]" />
         </motion.div>
         <motion.div
           className="absolute bottom-1/4 left-10 opacity-10"
           animate={{ y: [0, 20, 0] }}
           transition={{ duration: 7, repeat: Infinity }}
         >
-          <Car size={100} className="text-[#D97706]" />
+          <HardHat size={100} className="text-[#D97706]" />
         </motion.div>
-
-        {/* Language Switcher - Top Right */}
-        <div className="absolute top-6 right-6 z-50">
-          <LanguageSwitcher />
-        </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Badge */}
@@ -223,7 +426,7 @@ const HomePage = () => {
             className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-soft mb-6"
           >
             <Sparkles className="w-4 h-4 text-[#D97706]" />
-            <span className="text-sm font-medium text-[#1A1A1A]">Trusted by 10,000+ customers</span>
+            <span className="text-sm font-medium text-[#1A1A1A]">{t('hero.badge', { ns: 'home' })}</span>
           </motion.div>
 
           {/* Main Title with 3D Effect */}
@@ -236,9 +439,9 @@ const HomePage = () => {
             }}
             className="text-5xl md:text-7xl lg:text-8xl font-bold text-[#1A1A1A] mb-6 leading-tight"
           >
-            Find Your Perfect
+            {t('hero.title', { ns: 'home' })}
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#D97706] to-[#B45309]">
-              Dream Ride
+              {t('hero.titleHighlight', { ns: 'home' })}
             </span>
           </motion.h1>
 
@@ -249,8 +452,7 @@ const HomePage = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-xl text-[#52525B] mb-8 max-w-2xl mx-auto"
           >
-            Experience luxury and convenience with our premium car rental service. 
-            Choose from hundreds of vehicles and drive away with confidence.
+            {t('hero.subtitle', { ns: 'home' })}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -263,7 +465,7 @@ const HomePage = () => {
             <Link to="/search">
               <Button size="lg" className="group relative overflow-hidden">
                 <span className="relative z-10 flex items-center gap-2">
-                  Browse Cars
+                  {t('hero.browseButton', { ns: 'home' })}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition" />
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-[#D97706] to-[#B45309] opacity-0 group-hover:opacity-100 transition" />
@@ -271,11 +473,11 @@ const HomePage = () => {
             </Link>
             <Button variant="secondary" size="lg" className="group">
               <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition" />
-              Watch Demo
+              {t('hero.watchDemo', { ns: 'home' })}
             </Button>
           </motion.div>
 
-          {/* Stats Section */}
+          {/* Stats Section with Animated Counters */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -286,7 +488,9 @@ const HomePage = () => {
               <div key={index} className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <stat.icon className="w-5 h-5 text-[#D97706]" />
-                  <p className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">{stat.value}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">
+                    {stat.value}
+                  </p>
                 </div>
                 <p className="text-sm text-[#52525B]">{stat.label}</p>
               </div>
@@ -306,7 +510,7 @@ const HomePage = () => {
         </motion.div>
       </section>
 
-      {/* Features Section with Cards */}
+      {/* Equipment Categories Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -316,13 +520,56 @@ const HomePage = () => {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
-              Why Choose Us?
+              {t('categories.title', { ns: 'home' })}
             </h2>
             <p className="text-lg text-[#52525B] max-w-2xl mx-auto">
-              Experience the best car rental service with our premium features
+              {t('categories.subtitle', { ns: 'home' })}
             </p>
           </motion.div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {equipmentCategories.map((category, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <Card className="group hover:shadow-xl transition-all h-full cursor-pointer">
+                  <div className="text-center">
+                    <div
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all group-hover:scale-110"
+                      style={{ backgroundColor: `${category.color}15` }}
+                    >
+                      <category.icon className="w-8 h-8" style={{ color: category.color }} />
+                    </div>
+                    <h3 className="font-semibold text-lg mb-2">{category.title}</h3>
+                    <p className="text-sm text-[#52525B] mb-2">{category.desc}</p>
+                    <p className="text-xs text-[#D97706] font-medium">{category.count}</p>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
+      {/* Features Section */}
+      <section className="py-20 bg-gradient-to-br from-[#F9F8F6] to-[#FEF3C7]/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
+              {t('features.title', { ns: 'home' })}
+            </h2>
+            <p className="text-lg text-[#52525B] max-w-2xl mx-auto">
+              {t('features.subtitle', { ns: 'home' })}
+            </p>
+          </motion.div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <motion.div
@@ -332,9 +579,9 @@ const HomePage = () => {
                 transition={{ delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-medium transition-all h-full">
+                <Card className="group hover:shadow-xl transition-all h-full">
                   <div className="flex items-start gap-4">
-                    <div 
+                    <div
                       className="w-12 h-12 rounded-lg flex items-center justify-center transition-all group-hover:scale-110"
                       style={{ backgroundColor: `${feature.color}15` }}
                     >
@@ -352,8 +599,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* How It Works - Interactive Timeline */}
-      <section className="py-20 bg-gradient-to-br from-[#F9F8F6] to-[#FEF3C7]/20">
+      {/* How It Works Section */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -362,17 +609,15 @@ const HomePage = () => {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
-              How It Works
+              {t('howItWorks.title', { ns: 'home' })}
             </h2>
             <p className="text-lg text-[#52525B]">
-              Rent a car in three simple steps
+              {t('howItWorks.subtitle', { ns: 'home' })}
             </p>
           </motion.div>
-
           <div className="relative">
-            {/* Timeline Line */}
             <div className="hidden lg:block absolute top-1/3 left-0 right-0 h-0.5 bg-gradient-to-r from-[#D97706]/20 via-[#D97706] to-[#D97706]/20" />
-            
+           
             <div className="grid md:grid-cols-3 gap-8 relative">
               {howItWorks.map((item, index) => (
                 <motion.div
@@ -402,8 +647,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Featured Cars Showcase */}
-      <section className="py-20 bg-white">
+      {/* Featured Equipment Section */}
+      <section className="py-20 bg-gradient-to-br from-[#F9F8F6] to-[#FEF3C7]/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -413,83 +658,90 @@ const HomePage = () => {
           >
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-2">
-                Featured Cars
+                {t('featured.title', { ns: 'home' })}
               </h2>
               <p className="text-lg text-[#52525B]">
-                Most popular choices this week
+                {t('featured.subtitle', { ns: 'home' })}
               </p>
             </div>
             <Link to="/search">
               <Button variant="ghost" className="group">
-                View All
+                {t('featured.viewAll', { ns: 'home' })}
                 <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition" />
               </Button>
             </Link>
           </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredCars.map((car, index) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredEquipment.map((equipment, index) => (
               <motion.div
-                key={car.id}
+                key={equipment.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
                 <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group">
-                  <div className="relative h-48 overflow-hidden">
-                    <img 
-                      src={car.image} 
-                      alt={car.name}
+                  <div className="relative h-56 overflow-hidden bg-[#F3F2EE]">
+                    <img
+                      src={equipment.image}
+                      alt={equipment.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition" />
                     <div className="absolute top-2 right-2">
                       <div className="flex items-center gap-1 bg-white/90 backdrop-blur px-2 py-1 rounded-full">
                         <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                        <span className="text-xs font-medium">{car.rating}</span>
+                        <span className="text-xs font-medium">{equipment.rating}</span>
                       </div>
                     </div>
-                    {car.featured && (
+                    {equipment.featured && (
                       <div className="absolute top-2 left-2">
                         <div className="bg-[#D97706] text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
                           <Sparkles className="w-3 h-3" />
-                          Featured
+                          {t('featured.featured', { ns: 'home' })}
                         </div>
                       </div>
                     )}
+                    <div className="absolute bottom-2 left-2">
+                      <div className="bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+                        {equipment.type} • {equipment.attachment}
+                      </div>
+                    </div>
                   </div>
-                  
+                 
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h3 className="font-semibold text-lg">{car.name}</h3>
-                        <p className="text-sm text-[#52525B]">{car.year} • {car.brand}</p>
+                        <h3 className="font-semibold text-lg">{equipment.name}</h3>
+                        <p className="text-sm text-[#52525B]">{equipment.brand} • {equipment.weight}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-xl font-bold text-[#D97706]">${car.price}</p>
-                        <p className="text-xs text-[#A1A1AA]">per day</p>
+                        <p className="text-xl font-bold text-[#D97706]">ETB {equipment.price}</p>
+                        <p className="text-xs text-[#A1A1AA]">{t('perDay', { ns: 'common' })}</p>
+                        <p className="text-xs text-[#10B981]">
+                          {t('or', { ns: 'home' })} ETB {equipment.hourlyRate}/{t('perHour', { ns: 'common' })}
+                        </p>
                       </div>
                     </div>
-                    
+                   
                     <div className="flex items-center gap-3 text-sm text-[#52525B] mb-3">
                       <div className="flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
-                        <span className="text-xs">{car.location.split(',')[0]}</span>
+                        <span className="text-xs">{equipment.location.split(',')[0]}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Settings className="w-3 h-3" />
-                        <span className="text-xs">{car.transmission}</span>
+                        <HardHat className="w-3 h-3" />
+                        <span className="text-xs">{equipment.type}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
-                        <span className="text-xs">{car.seats} seats</span>
+                        <Gauge className="w-3 h-3" />
+                        <span className="text-xs">{equipment.weight}</span>
                       </div>
                     </div>
-                    
-                    <Link to={`/car/${car.id}`}>
+                   
+                    <Link to={`/equipment/${equipment.id}`}>
                       <Button className="w-full group-hover:bg-[#B45309] transition">
-                        View Details
+                        {t('featured.viewDetails', { ns: 'home' })}
                         <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition" />
                       </Button>
                     </Link>
@@ -501,7 +753,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Perks & Benefits */}
+      {/* Perks & Benefits Section */}
       <section className="py-20 bg-gradient-to-r from-[#D97706] to-[#B45309] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -511,13 +763,12 @@ const HomePage = () => {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Everything You Need
+              {t('perks.title', { ns: 'home' })}
             </h2>
             <p className="text-lg opacity-90">
-              Premium perks included with every rental
+              {t('perks.subtitle', { ns: 'home' })}
             </p>
           </motion.div>
-
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {perks.map((perk, index) => (
               <motion.div
@@ -539,7 +790,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Testimonials with Carousel */}
+      {/* Testimonials Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -549,29 +800,27 @@ const HomePage = () => {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
-              What Our Customers Say
+              {t('testimonials.title', { ns: 'home' })}
             </h2>
             <p className="text-lg text-[#52525B]">
-              Trusted by thousands of happy renters
+              {t('testimonials.subtitle', { ns: 'home' })}
             </p>
           </motion.div>
-
           <div className="relative max-w-4xl mx-auto">
             <div className="overflow-hidden">
               <motion.div
                 className="flex transition-transform duration-500 ease-out"
                 animate={{ x: `-${activeTestimonial * 100}%` }}
               >
-                {[
-                  { name: 'John Smith', role: 'Business Traveler', rating: 5, text: 'Amazing experience! The car was in perfect condition and the booking process was seamless.', avatar: 'https://randomuser.me/api/portraits/men/1.jpg' },
-                  { name: 'Sarah Johnson', role: 'Family Vacation', rating: 5, text: 'Great selection of cars. The customer support was very helpful when I had questions.', avatar: 'https://randomuser.me/api/portraits/women/1.jpg' },
-                  { name: 'Mike Brown', role: 'Weekend Getaway', rating: 4, text: 'Very professional service. Will definitely use again for future trips.', avatar: 'https://randomuser.me/api/portraits/men/2.jpg' }
-                ].map((testimonial, idx) => (
+                {testimonials.map((testimonial, idx) => (
                   <div key={idx} className="w-full flex-shrink-0 px-4">
                     <Card className="text-center p-8">
                       <div className="flex justify-center mb-4">
                         {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-5 h-5 ${i < testimonial.rating ? 'text-yellow-500 fill-yellow-500' : 'text-[#E4E4E7]'}`} />
+                          <Star 
+                            key={i} 
+                            className={`w-5 h-5 ${i < testimonial.rating ? 'text-yellow-500 fill-yellow-500' : 'text-[#E4E4E7]'}`} 
+                          />
                         ))}
                       </div>
                       <p className="text-[#52525B] text-lg mb-6">"{testimonial.text}"</p>
@@ -587,7 +836,6 @@ const HomePage = () => {
                 ))}
               </motion.div>
             </div>
-
             {/* Dots Indicator */}
             <div className="flex justify-center gap-2 mt-8">
               {[0, 1, 2].map((idx) => (
@@ -604,17 +852,17 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* CTA Section - Parallax */}
+      {/* CTA Section */}
       <section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0">
-          <img 
-            src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1600"
-            alt="Road"
+          <img
+            src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=1600"
+            alt="Construction Site"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#D97706]/90 to-[#B45309]/90" />
         </div>
-        
+       
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -622,21 +870,21 @@ const HomePage = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-              Ready to Hit the Road?
+              {t('cta.title', { ns: 'home' })}
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of satisfied customers and book your perfect car today
+              {t('cta.subtitle', { ns: 'home' })}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/search">
                 <Button size="lg" className="bg-white text-[#D97706] hover:bg-gray-100 group">
-                  Browse Available Cars
+                  {t('cta.browseButton', { ns: 'home' })}
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition" />
                 </Button>
               </Link>
               <Link to="/register">
                 <Button size="lg" variant="secondary" className="bg-transparent border-white text-white hover:bg-white/10">
-                  Become a Host
+                  {t('cta.listButton', { ns: 'home' })}
                 </Button>
               </Link>
             </div>

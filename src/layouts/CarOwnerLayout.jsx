@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   Car, 
   LayoutDashboard, 
@@ -14,24 +15,45 @@ import {
   ChevronRight,
   ChevronLeft,
   TrendingUp,
-  Calendar
+  Calendar,
+  Languages,
+  ChevronDown
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const CarOwnerLayout = () => {
+  const { t } = useTranslation('carOwnerLayout');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState(() => {
+    return localStorage.getItem('i18nextLng') || 'en';
+  });
   const location = useLocation();
   const { logout, user } = useAuth();
+  
+  const changeLanguage = (lng) => {
+    setCurrentLang(lng);
+    localStorage.setItem('i18nextLng', lng);
+    window.location.reload();
+  };
+  
+  const languageOptions = [
+    { code: 'en', name: 'English' },
+    { code: 'am', name: 'አማርኛ' }
+  ];
+  
+  const currentLanguageName = languageOptions.find(lang => lang.code === currentLang)?.name || 'English';
   
   // Check if screen is mobile
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
       if (window.innerWidth >= 768) {
-        setSidebarOpen(true); // Desktop: sidebar open by default
+        setSidebarOpen(true);
       } else {
-        setSidebarOpen(false); // Mobile: sidebar closed by default
+        setSidebarOpen(false);
       }
     };
     
@@ -64,13 +86,13 @@ const CarOwnerLayout = () => {
   }, [location.pathname, isMobile]);
   
   const navItems = [
-    { path: '/owner/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/owner/submit-car', icon: PlusCircle, label: 'Submit Car' },
-    { path: '/owner/submissions', icon: List, label: 'My Listings' },
-    { path: '/owner/analytics', icon: TrendingUp, label: 'Analytics' },
-    { path: '/owner/calendar', icon: Calendar, label: 'Calendar' },
-    { path: '/owner/profile', icon: User, label: 'Profile' },
-    { path: '/owner/settings', icon: Settings, label: 'Settings' },
+    { path: '/owner/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
+    { path: '/owner/submit-car', icon: PlusCircle, label: t('nav.submitCar') },
+    { path: '/owner/submissions', icon: List, label: t('nav.myListings') },
+    { path: '/owner/analytics', icon: TrendingUp, label: t('nav.analytics') },
+    { path: '/owner/calendar', icon: Calendar, label: t('nav.calendar') },
+    { path: '/owner/profile', icon: User, label: t('nav.profile') },
+    { path: '/owner/settings', icon: Settings, label: t('nav.settings') },
   ];
   
   const isActive = (path) => location.pathname === path;
@@ -94,7 +116,7 @@ const CarOwnerLayout = () => {
           
           <Link to="/owner/dashboard" className="flex items-center gap-2">
             <Car className="w-6 h-6 text-[#D97706]" />
-            <span className="text-lg font-bold text-[#1A1A1A]">CarRental</span>
+            <span className="text-lg font-bold text-[#1A1A1A]">{t('brand.name')}</span>
           </Link>
           
           <button className="relative p-2 text-[#52525B] hover:text-[#D97706] transition">
@@ -108,9 +130,59 @@ const CarOwnerLayout = () => {
       <header className="bg-white border-b border-[#E4E4E7] sticky top-0 z-30 hidden md:block">
         <div className="flex justify-between items-center px-6 h-16">
           <h1 className="text-lg font-semibold text-[#1A1A1A]">
-            {navItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}
+            {navItems.find(item => item.path === location.pathname)?.label || t('topbar.title')}
           </h1>
           <div className="flex items-center gap-4">
+            {/* Language Switcher */}
+            <div className="relative">
+              <button
+                onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#F3F2EE] hover:bg-[#FEF3C7] transition"
+              >
+                <Languages className="w-4 h-4 text-[#D97706]" />
+                <span className="text-sm font-medium text-[#1A1A1A]">
+                  {currentLanguageName}
+                </span>
+                <ChevronDown className={`w-3 h-3 text-[#52525B] transition-transform ${languageMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              <AnimatePresence>
+                {languageMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setLanguageMenuOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-strong border border-[#E4E4E7] z-50 overflow-hidden"
+                    >
+                      {languageOptions.map((lang) => (
+                        <button
+                          key={lang.code}
+                          onClick={() => {
+                            changeLanguage(lang.code);
+                            setLanguageMenuOpen(false);
+                          }}
+                          className={`
+                            w-full text-left px-4 py-3 text-sm transition
+                            ${currentLang === lang.code 
+                              ? 'bg-[#D97706] text-white' 
+                              : 'text-[#1A1A1A] hover:bg-[#FEF3C7]'
+                            }
+                          `}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${currentLang === lang.code ? 'bg-white' : 'bg-[#D97706]'}`} />
+                            {lang.name}
+                          </div>
+                        </button>
+                      ))}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+            
             <button className="relative p-2 text-[#52525B] hover:text-[#D97706] transition">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
@@ -120,17 +192,13 @@ const CarOwnerLayout = () => {
                 {user?.name?.charAt(0) || 'O'}
               </div>
               <div className="hidden md:block">
-                <p className="text-sm font-medium text-[#1A1A1A]">{user?.name || 'Car Owner'}</p>
-                <p className="text-xs text-[#A1A1AA]">Car Owner</p>
+                <p className="text-sm font-medium text-[#1A1A1A]">{user?.name || t('user.name')}</p>
+                <p className="text-xs text-[#A1A1AA]">{t('user.role')}</p>
               </div>
             </div>
           </div>
         </div>
       </header>
-      
-      {/* Sidebar - Different behavior for mobile vs desktop */}
-      {/* Mobile: Overlay drawer that slides in */}
-      {/* Desktop: Fixed sidebar that pushes content */}
       
       {/* Overlay for mobile */}
       {isMobile && sidebarOpen && (
@@ -159,8 +227,8 @@ const CarOwnerLayout = () => {
           {sidebarOpen || !isMobile ? (
             <Link to="/owner/dashboard" className="flex items-center gap-2">
               <Car className="w-7 h-7 text-[#D97706]" />
-              <span className="text-white font-bold text-lg">CarRental</span>
-              <span className="text-[#D97706] text-xs bg-white/10 px-1.5 py-0.5 rounded">Owner</span>
+              <span className="text-white font-bold text-lg">{t('brand.name')}</span>
+              <span className="text-[#D97706] text-xs bg-white/10 px-1.5 py-0.5 rounded">{t('brand.role')}</span>
             </Link>
           ) : (
             <Car className="w-7 h-7 text-[#D97706] mx-auto" />
@@ -208,8 +276,8 @@ const CarOwnerLayout = () => {
         <div className="p-3 border-t border-white/10">
           {(sidebarOpen || !isMobile) && (
             <div className="px-3 py-2 mb-2">
-              <p className="text-white text-sm font-medium">{user?.name || 'Car Owner'}</p>
-              <p className="text-white/40 text-xs truncate">{user?.email || 'owner@example.com'}</p>
+              <p className="text-white text-sm font-medium">{user?.name || t('user.name')}</p>
+              <p className="text-white/40 text-xs truncate">{user?.email || t('user.fallbackEmail')}</p>
             </div>
           )}
           <button 
@@ -217,7 +285,7 @@ const CarOwnerLayout = () => {
             className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition"
           >
             <LogOut className="w-5 h-5 shrink-0" />
-            {(sidebarOpen || !isMobile) && <span className="text-sm font-medium">Logout</span>}
+            {(sidebarOpen || !isMobile) && <span className="text-sm font-medium">{t('bottom.logout')}</span>}
           </button>
         </div>
       </aside>

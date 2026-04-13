@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
-  Car, 
   LayoutDashboard, 
   Users, 
   Calendar, 
@@ -14,16 +14,44 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  Timer,
+  HardHat,
+  Package,
+  TrendingUp,
+  UserCheck,
+  ClipboardList,
+  DollarSign,
+  Languages,
+  Globe
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminLayout = () => {
+  const { t } = useTranslation('adminLayout');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState(() => {
+    return localStorage.getItem('i18nextLng') || 'en';
+  });
   const location = useLocation();
   const { user, logout } = useAuth();
+
+  const changeLanguage = (lng) => {
+    setCurrentLang(lng);
+    localStorage.setItem('i18nextLng', lng);
+    window.location.reload();
+  };
+  
+  const languageOptions = [
+    { code: 'en', name: 'English' },
+    { code: 'am', name: 'አማርኛ' }
+  ];
+  
+  const currentLanguageName = languageOptions.find(lang => lang.code === currentLang)?.name || 'English';
 
   // Check if mobile view
   useEffect(() => {
@@ -49,15 +77,27 @@ const AdminLayout = () => {
   }, [location.pathname, isMobile]);
 
   const navItems = [
-    { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard', section: 'MAIN' },
-    { path: '/admin/cars', icon: Car, label: 'Car Listings', section: 'MANAGEMENT' },
-    { path: '/admin/owners', icon: Users, label: 'Car Owners', section: 'MANAGEMENT' },
-    { path: '/admin/submissions', icon: FileText, label: 'Pending Submissions', section: 'MANAGEMENT', badge: '8' },
-    { path: '/admin/bookings', icon: Calendar, label: 'Bookings', section: 'MANAGEMENT' },
-    { path: '/admin/customers', icon: Users, label: 'Customers', section: 'MANAGEMENT' },
-    { path: '/admin/categories', icon: Tag, label: 'Categories', section: 'SETTINGS' },
-    { path: '/admin/reports', icon: FileText, label: 'Reports', section: 'REPORTS' },
-    { path: '/admin/settings', icon: Settings, label: 'Settings', section: 'SETTINGS' },
+    // MAIN SECTION
+    { path: '/admin/dashboard', icon: LayoutDashboard, label: t('nav.items.dashboard'), section: 'MAIN' },
+    { path: '/admin/time-controller', icon: Timer, label: t('nav.items.timeController'), section: 'MAIN', highlight: true },
+    
+    // MANAGEMENT SECTION
+    { path: '/admin/equipment', icon: HardHat, label: t('nav.items.equipment'), section: 'MANAGEMENT' },
+    { path: '/admin/categories', icon: Tag, label: t('nav.items.categories'), section: 'MANAGEMENT' },
+    { path: '/admin/submissions', icon: ClipboardList, label: t('nav.items.pendingSubmissions'), section: 'MANAGEMENT', badge: '12' },
+    { path: '/admin/bookings', icon: Calendar, label: t('nav.items.bookings'), section: 'MANAGEMENT' },
+    { path: '/admin/materials', icon: Package, label: t('nav.items.materialOrders'), section: 'MANAGEMENT', badge: '5' },
+    
+    // USERS SECTION
+    { path: '/admin/customers', icon: Users, label: t('nav.items.customers'), section: 'USERS' },
+    { path: '/admin/owners', icon: UserCheck, label: t('nav.items.equipmentOwners'), section: 'USERS' },
+    
+    // REPORTS SECTION
+    { path: '/admin/reports', icon: TrendingUp, label: t('nav.items.reportsAnalytics'), section: 'REPORTS' },
+    
+    // SETTINGS SECTION
+    { path: '/admin/settings', icon: Settings, label: t('nav.items.settings'), section: 'SETTINGS' },
+    { path: '/admin/profile', icon: UserCheck, label: t('nav.items.myProfile'), section: 'SETTINGS' },
   ];
   
   // Group nav items by section
@@ -76,6 +116,14 @@ const AdminLayout = () => {
   const getPageTitle = () => {
     const currentItem = navItems.find(item => item.path === location.pathname);
     return currentItem?.label || 'Dashboard';
+  };
+  
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (user?.name) {
+      return user.name.charAt(0).toUpperCase();
+    }
+    return 'A';
   };
   
   return (
@@ -99,12 +147,12 @@ const AdminLayout = () => {
         <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
           {sidebarOpen ? (
             <Link to="/admin/dashboard" className="flex items-center gap-2">
-              <Car className="w-7 h-7 text-[#D97706]" />
-              <span className="text-white font-bold text-lg">CarRental</span>
-              <span className="text-[#D97706] text-xs bg-white/10 px-1.5 py-0.5 rounded">Admin</span>
+              <HardHat className="w-7 h-7 text-[#D97706]" />
+              <span className="text-white font-bold text-lg">{t('brand.name')}</span>
+              <span className="text-[#D97706] text-xs bg-white/10 px-1.5 py-0.5 rounded">{t('brand.role')}</span>
             </Link>
           ) : (
-            <Car className="w-7 h-7 text-[#D97706] mx-auto" />
+            <HardHat className="w-7 h-7 text-[#D97706] mx-auto" />
           )}
           
           {/* Desktop toggle button */}
@@ -134,38 +182,47 @@ const AdminLayout = () => {
             <div key={section} className="mb-6">
               {sidebarOpen && (
                 <div className="text-[10px] font-semibold text-white/40 uppercase tracking-wider px-3 mb-3">
-                  {section}
+                  {t(`nav.sections.${section.toLowerCase()}`)}
                 </div>
               )}
-              {items.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all mb-1 group
-                    ${isActive(item.path) 
-                      ? 'bg-[#D97706] text-white' 
-                      : 'text-white/60 hover:text-white hover:bg-white/10'
-                    }
-                  `}
-                  title={!sidebarOpen ? item.label : ''}
-                >
-                  <item.icon className="w-5 h-5 shrink-0" />
-                  {sidebarOpen && (
-                    <>
-                      <span className="text-sm font-medium flex-1">{item.label}</span>
-                      {item.badge && (
-                        <span className="bg-[#D97706] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                          {item.badge}
-                        </span>
-                      )}
-                    </>
-                  )}
-                  {!sidebarOpen && item.badge && (
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-red-500 rounded-full"></span>
-                  )}
-                </Link>
-              ))}
+              {items.map((item) => {
+                const Icon = item.icon;
+                const isItemActive = isActive(item.path);
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`
+                      flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all mb-1 group
+                      ${isItemActive 
+                        ? 'bg-[#D97706] text-white' 
+                        : item.highlight 
+                          ? 'bg-[#D97706]/20 text-white border border-[#D97706]/50 hover:bg-[#D97706]/30' 
+                          : 'text-white/60 hover:text-white hover:bg-white/10'
+                      }
+                    `}
+                    title={!sidebarOpen ? item.label : ''}
+                  >
+                    <Icon className="w-5 h-5 shrink-0" />
+                    {sidebarOpen && (
+                      <>
+                        <span className="text-sm font-medium flex-1">{item.label}</span>
+                        {item.badge && (
+                          <span className="bg-[#D97706] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                            {item.badge}
+                          </span>
+                        )}
+                        {item.highlight && (
+                          <span className="text-[10px] text-[#D97706] animate-pulse">●</span>
+                        )}
+                      </>
+                    )}
+                    {!sidebarOpen && item.badge && (
+                      <span className="absolute right-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-red-500 rounded-full"></span>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           ))}
         </nav>
@@ -177,7 +234,7 @@ const AdminLayout = () => {
             className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition"
           >
             <LogOut className="w-5 h-5" />
-            {sidebarOpen && <span className="text-sm font-medium">Logout</span>}
+            {sidebarOpen && <span className="text-sm font-medium">{t('bottom.logout')}</span>}
           </button>
         </div>
       </aside>
@@ -195,13 +252,68 @@ const AdminLayout = () => {
               >
                 <Menu className="w-5 h-5" />
               </button>
-              <h1 className="text-base md:text-lg font-semibold text-[#1A1A1A]">
-                {getPageTitle()}
-              </h1>
+              <div>
+                <h1 className="text-base md:text-lg font-semibold text-[#1A1A1A]">
+                  {getPageTitle()}
+                </h1>
+                <p className="text-xs text-[#A1A1AA] hidden md:block">
+                  {t('topbar.subtitle')}
+                </p>
+              </div>
             </div>
             
             {/* Right Section */}
             <div className="flex items-center gap-2 md:gap-4">
+              {/* Language Switcher */}
+              <div className="relative">
+                <button
+                  onClick={() => setLanguageMenuOpen(!languageMenuOpen)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#F3F2EE] hover:bg-[#FEF3C7] transition"
+                >
+                  <Languages className="w-4 h-4 text-[#D97706]" />
+                  <span className="text-sm font-medium text-[#1A1A1A] hidden sm:inline">
+                    {currentLanguageName}
+                  </span>
+                  <ChevronDown className={`w-3 h-3 text-[#52525B] transition-transform ${languageMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                <AnimatePresence>
+                  {languageMenuOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setLanguageMenuOpen(false)} />
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-strong border border-[#E4E4E7] z-50 overflow-hidden"
+                      >
+                        {languageOptions.map((lang) => (
+                          <button
+                            key={lang.code}
+                            onClick={() => {
+                              changeLanguage(lang.code);
+                              setLanguageMenuOpen(false);
+                            }}
+                            className={`
+                              w-full text-left px-4 py-3 text-sm transition
+                              ${currentLang === lang.code 
+                                ? 'bg-[#D97706] text-white' 
+                                : 'text-[#1A1A1A] hover:bg-[#FEF3C7]'
+                              }
+                            `}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${currentLang === lang.code ? 'bg-white' : 'bg-[#D97706]'}`} />
+                              {lang.name}
+                            </div>
+                          </button>
+                        ))}
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
+              
               {/* Notification Button */}
               <button className="relative p-2 rounded-lg text-[#52525B] hover:bg-[#F3F2EE] hover:text-[#D97706] transition">
                 <Bell className="w-5 h-5" />
@@ -214,14 +326,14 @@ const AdminLayout = () => {
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="flex items-center gap-2 md:gap-3 p-1 rounded-lg hover:bg-[#F3F2EE] transition"
                 >
-                  <div className="w-8 h-8 rounded-full bg-[#D97706] flex items-center justify-center text-white font-semibold text-sm">
-                    {user?.name?.charAt(0) || 'A'}
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#D97706] to-[#B45309] flex items-center justify-center text-white font-semibold text-sm">
+                    {getUserInitials()}
                   </div>
                   {!isMobile && (
                     <>
                       <div className="text-left hidden md:block">
                         <p className="text-sm font-medium text-[#1A1A1A]">{user?.name || 'Admin User'}</p>
-                        <p className="text-xs text-[#A1A1AA]">{user?.email || 'admin@example.com'}</p>
+                        <p className="text-xs text-[#A1A1AA]">{user?.email || 'admin@equirent.com'}</p>
                       </div>
                       <ChevronDown className="w-4 h-4 text-[#A1A1AA]" />
                     </>
@@ -232,18 +344,18 @@ const AdminLayout = () => {
                 {showProfileMenu && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setShowProfileMenu(false)} />
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-strong border border-[#E4E4E7] z-50">
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-strong border border-[#E4E4E7] z-50 overflow-hidden">
                       <Link 
                         to="/admin/profile" 
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#F9F8F6] transition rounded-t-lg"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#F9F8F6] transition"
                         onClick={() => setShowProfileMenu(false)}
                       >
-                        <div className="w-8 h-8 rounded-full bg-[#D97706] flex items-center justify-center text-white font-semibold">
-                          {user?.name?.charAt(0) || 'A'}
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#D97706] to-[#B45309] flex items-center justify-center text-white font-semibold">
+                          {getUserInitials()}
                         </div>
                         <div>
                           <p className="text-sm font-medium text-[#1A1A1A]">{user?.name || 'Admin User'}</p>
-                          <p className="text-xs text-[#A1A1AA]">{user?.email || 'admin@example.com'}</p>
+                          <p className="text-xs text-[#A1A1AA]">{user?.email || 'admin@equirent.com'}</p>
                         </div>
                       </Link>
                       <div className="border-t border-[#E4E4E7]"></div>
@@ -253,7 +365,15 @@ const AdminLayout = () => {
                         onClick={() => setShowProfileMenu(false)}
                       >
                         <Settings className="w-4 h-4 text-[#52525B]" />
-                        <span className="text-sm">Settings</span>
+                        <span className="text-sm">{t('topbar.profile.settings')}</span>
+                      </Link>
+                      <Link 
+                        to="/admin/reports" 
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#F9F8F6] transition"
+                        onClick={() => setShowProfileMenu(false)}
+                      >
+                        <TrendingUp className="w-4 h-4 text-[#52525B]" />
+                        <span className="text-sm">{t('topbar.profile.reports')}</span>
                       </Link>
                       <div className="border-t border-[#E4E4E7]"></div>
                       <button 
@@ -261,10 +381,10 @@ const AdminLayout = () => {
                           setShowProfileMenu(false);
                           logout();
                         }} 
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#F9F8F6] transition w-full text-left rounded-b-lg"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition w-full text-left"
                       >
                         <LogOut className="w-4 h-4 text-red-500" />
-                        <span className="text-sm text-red-500">Logout</span>
+                        <span className="text-sm text-red-500">{t('topbar.profile.logout')}</span>
                       </button>
                     </div>
                   </>

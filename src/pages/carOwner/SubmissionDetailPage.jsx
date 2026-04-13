@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import { 
-  Car, 
+  HardHat,
   Calendar, 
   MapPin, 
   DollarSign, 
@@ -21,51 +22,67 @@ import {
   Edit,
   ArrowLeft,
   Download,
-  Share2
+  Share2,
+  Truck,
+  Wrench,
+  Package,
+  Factory
 } from 'lucide-react';
 
 const SubmissionDetailPage = () => {
+  const { t } = useTranslation('submissionDetail');
   const { id } = useParams();
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // Simulate API call
+    // Simulate API call - Equipment data for Ethiopian market
     setTimeout(() => {
       const mockSubmission = {
         id: id,
-        title: '2022 Toyota Camry XLE',
-        brand: 'Toyota',
-        model: 'Camry',
+        title: 'CAT 320 Excavator',
+        brand: 'Caterpillar',
+        model: '320',
         year: 2022,
-        color: 'Silver',
+        color: 'Yellow',
+        equipmentType: 'Excavator',
+        attachment: 'Shovel',
         transmission: 'Automatic',
-        fuelType: 'Petrol',
-        seats: 5,
-        mileage: 25000,
-        engineSize: '2.5L 4-cylinder',
-        features: ['GPS Navigation', 'Bluetooth', 'Backup Camera', 'Heated Seats', 'Apple CarPlay'],
-        pricePerDay: 65,
-        pricePerWeek: 380,
-        pricePerMonth: 1200,
-        securityDeposit: 250,
-        lateFee: 15,
-        location: 'New York, NY',
-        pickupInstructions: 'Parking garage Level 2, Spot #42. Call 10 minutes before pickup.',
-        contactPhone: '+1 234 567 8900',
-        description: 'Well-maintained Toyota Camry, perfect for business trips or family vacations. Clean interior, regularly serviced.',
+        fuelType: 'Diesel',
+        operatingWeight: '20 tons',
+        enginePower: '150 HP',
+        operatingHours: 3200,
+        features: ['Air Conditioning', 'GPS Tracking', 'Backup Camera', 'ROPS Certified', 'LED Work Lights', 'Auxiliary Hydraulics'],
+        pricePerDay: 8500,
+        pricePerWeek: 50000,
+        pricePerMonth: 180000,
+        pricePerHour: 1200,
+        securityDeposit: 50000,
+        lateFee: 500,
+        region: 'Addis Ababa',
+        city: 'Addis Ababa',
+        subcity: 'Bole',
+        woreda: 'Woreda 03',
+        location: 'Bole Medhanialem, near the airport',
+        pickupInstructions: 'Equipment located at Bole Industrial Zone. Call 30 minutes before pickup. Bring valid ID and operator license.',
+        contactPhone: '+251 911 234567',
+        contactName: 'Abebe Bekele',
+        description: 'Well-maintained CAT 320 excavator perfect for construction sites, road building, and excavation projects. Regular service every 250 hours. Comes with hydraulic quick coupler and two buckets (shovel and hammer attachment available on request).',
         status: 'approved',
-        submittedAt: '2024-01-15T10:30:00Z',
-        reviewedAt: '2024-01-18T14:20:00Z',
+        submittedAt: '2024-03-15T10:30:00Z',
+        reviewedAt: '2024-03-18T14:20:00Z',
         images: [
-          'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800',
-          'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800',
-          'https://images.unsplash.com/photo-1550355291-bbee04a92027?w=800'
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhjQijEXK7zvAaspMZUERi3MJLmK1KmNYLE-iqM0GhRA&s=10',
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhy9e8Ce4B33NOhAnf_0udB0zuPhrjAM2-KPBjUKse80lSJawCfdlH9JBi&s=10',
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLoib9_LKYurH0W8IAXevjt0rNAr1nvf8BZMyFNYiyFg&s=10'
         ],
-        views: 245,
-        bookings: 12,
-        earnings: 780,
-        adminNotes: 'Great condition, approved for immediate listing.'
+        views: 345,
+        bookings: 8,
+        earnings: 168500,
+        adminNotes: 'Excellent condition with low operating hours. All documentation verified. Approved for immediate listing.',
+        operatorAvailable: true,
+        deliveryAvailable: true,
+        maintenanceIncluded: true
       };
       setSubmission(mockSubmission);
       setLoading(false);
@@ -74,12 +91,21 @@ const SubmissionDetailPage = () => {
   
   const getStatusConfig = (status) => {
     const configs = {
-      approved: { badge: <Badge variant="approved">✓ Approved</Badge>, icon: <CheckCircle className="w-6 h-6 text-green-500" />, color: 'green' },
-      pending: { badge: <Badge variant="pending">⏳ Pending Review</Badge>, icon: <Clock className="w-6 h-6 text-yellow-500" />, color: 'yellow' },
-      rejected: { badge: <Badge variant="rejected">✗ Rejected</Badge>, icon: <XCircle className="w-6 h-6 text-red-500" />, color: 'red' },
-      review: { badge: <Badge variant="review">📝 Under Review</Badge>, icon: <AlertCircle className="w-6 h-6 text-purple-500" />, color: 'purple' }
+      approved: { badge: <Badge variant="approved">✓ {t('statusBadges.approved')}</Badge>, icon: <CheckCircle className="w-6 h-6 text-green-500" />, color: 'green' },
+      pending: { badge: <Badge variant="pending">⏳ {t('statusBadges.pending')}</Badge>, icon: <Clock className="w-6 h-6 text-yellow-500" />, color: 'yellow' },
+      rejected: { badge: <Badge variant="rejected">✗ {t('statusBadges.rejected')}</Badge>, icon: <XCircle className="w-6 h-6 text-red-500" />, color: 'red' },
+      review: { badge: <Badge variant="review">📝 {t('statusBadges.review')}</Badge>, icon: <AlertCircle className="w-6 h-6 text-purple-500" />, color: 'purple' }
     };
     return configs[status] || configs.pending;
+  };
+  
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-ET', {
+      style: 'currency',
+      currency: 'ETB',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
   };
   
   if (loading) {
@@ -98,35 +124,42 @@ const SubmissionDetailPage = () => {
         {/* Back Button */}
         <Link to="/owner/submissions" className="inline-flex items-center gap-2 text-[#52525B] hover:text-[#D97706] mb-6 transition">
           <ArrowLeft className="w-4 h-4" />
-          Back to My Submissions
+          {t('backButton')}
         </Link>
         
         {/* Header */}
         <div className="flex flex-wrap justify-between items-start gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3 mb-2 flex-wrap">
               <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">{submission.title}</h1>
+              <span className="text-xs bg-[#FEF3C7] text-[#92400E] px-2 py-1 rounded-full">
+                {submission.equipmentType}
+              </span>
               {statusConfig.badge}
             </div>
             <p className="text-[#52525B]">
-              Submitted on {new Date(submission.submittedAt).toLocaleDateString()}
-              {submission.reviewedAt && ` • Reviewed on ${new Date(submission.reviewedAt).toLocaleDateString()}`}
+              {t('submittedOn')} {new Date(submission.submittedAt).toLocaleDateString()}
+              {submission.reviewedAt && ` • ${t('reviewedOn')} ${new Date(submission.reviewedAt).toLocaleDateString()}`}
             </p>
+            <div className="flex items-center gap-2 mt-2">
+              <MapPin className="w-4 h-4 text-[#D97706]" />
+              <span className="text-sm text-[#52525B]">{submission.city}, {submission.region}</span>
+            </div>
           </div>
           
           <div className="flex gap-2">
             {submission.status === 'rejected' && (
-              <Link to="/owner/submit-car">
+              <Link to="/owner/submit-equipment">
                 <Button iconLeft={<Edit className="w-4 h-4" />}>
-                  Resubmit Car
+                  {t('resubmitButton')}
                 </Button>
               </Link>
             )}
             <Button variant="ghost" iconLeft={<Share2 className="w-4 h-4" />}>
-              Share
+              {t('shareButton')}
             </Button>
             <Button variant="ghost" iconLeft={<Download className="w-4 h-4" />}>
-              Export
+              {t('exportButton')}
             </Button>
           </div>
         </div>
@@ -141,7 +174,14 @@ const SubmissionDetailPage = () => {
               transition={{ delay: idx * 0.1 }}
               className="relative rounded-xl overflow-hidden aspect-video bg-[#F3F2EE]"
             >
-              <img src={img} alt={`Car ${idx + 1}`} className="w-full h-full object-cover" />
+              <img 
+                src={img} 
+                alt={`Equipment ${idx + 1}`} 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.src = 'https://via.placeholder.com/400x300?text=No+Image';
+                }}
+              />
             </motion.div>
           ))}
         </div>
@@ -149,48 +189,56 @@ const SubmissionDetailPage = () => {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Car Details */}
+            {/* Equipment Details */}
             <Card>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Car className="text-[#D97706]" />
-                Car Details
+                <HardHat className="text-[#D97706]" />
+                {t('equipmentDetails.title')}
               </h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="flex justify-between py-2 border-b border-[#E4E4E7]">
-                  <span className="text-[#52525B]">Brand</span>
+                  <span className="text-[#52525B]">{t('equipmentDetails.brand')}</span>
                   <span className="font-medium">{submission.brand}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-[#E4E4E7]">
-                  <span className="text-[#52525B]">Model</span>
+                  <span className="text-[#52525B]">{t('equipmentDetails.model')}</span>
                   <span className="font-medium">{submission.model}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-[#E4E4E7]">
-                  <span className="text-[#52525B]">Year</span>
+                  <span className="text-[#52525B]">{t('equipmentDetails.year')}</span>
                   <span className="font-medium">{submission.year}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-[#E4E4E7]">
-                  <span className="text-[#52525B]">Color</span>
+                  <span className="text-[#52525B]">{t('equipmentDetails.color')}</span>
                   <span className="font-medium">{submission.color}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-[#E4E4E7]">
-                  <span className="text-[#52525B]">Transmission</span>
+                  <span className="text-[#52525B]">{t('equipmentDetails.equipmentType')}</span>
+                  <span className="font-medium">{submission.equipmentType}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-[#E4E4E7]">
+                  <span className="text-[#52525B]">{t('equipmentDetails.attachment')}</span>
+                  <span className="font-medium">{submission.attachment}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-[#E4E4E7]">
+                  <span className="text-[#52525B]">{t('equipmentDetails.transmission')}</span>
                   <span className="font-medium">{submission.transmission}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-[#E4E4E7]">
-                  <span className="text-[#52525B]">Fuel Type</span>
+                  <span className="text-[#52525B]">{t('equipmentDetails.fuelType')}</span>
                   <span className="font-medium">{submission.fuelType}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-[#E4E4E7]">
-                  <span className="text-[#52525B]">Seats</span>
-                  <span className="font-medium">{submission.seats} seats</span>
+                  <span className="text-[#52525B]">{t('equipmentDetails.operatingWeight')}</span>
+                  <span className="font-medium">{submission.operatingWeight}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-[#E4E4E7]">
-                  <span className="text-[#52525B]">Mileage</span>
-                  <span className="font-medium">{submission.mileage.toLocaleString()} km</span>
+                  <span className="text-[#52525B]">{t('equipmentDetails.enginePower')}</span>
+                  <span className="font-medium">{submission.enginePower}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-[#E4E4E7]">
-                  <span className="text-[#52525B]">Engine</span>
-                  <span className="font-medium">{submission.engineSize}</span>
+                  <span className="text-[#52525B]">{t('equipmentDetails.operatingHours')}</span>
+                  <span className="font-medium">{submission.operatingHours.toLocaleString()} hours</span>
                 </div>
               </div>
             </Card>
@@ -199,7 +247,7 @@ const SubmissionDetailPage = () => {
             <Card>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <Settings className="text-[#D97706]" />
-                Features & Amenities
+                {t('features.title')}
               </h2>
               <div className="flex flex-wrap gap-2">
                 {submission.features.map(feature => (
@@ -213,8 +261,38 @@ const SubmissionDetailPage = () => {
             {/* Description */}
             {submission.description && (
               <Card>
-                <h2 className="text-xl font-semibold mb-3">Description</h2>
+                <h2 className="text-xl font-semibold mb-3">{t('description.title')}</h2>
                 <p className="text-[#52525B] leading-relaxed">{submission.description}</p>
+              </Card>
+            )}
+            
+            {/* Additional Services */}
+            {(submission.operatorAvailable || submission.deliveryAvailable || submission.maintenanceIncluded) && (
+              <Card>
+                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <Package className="text-[#D97706]" />
+                  {t('additionalServices.title')}
+                </h2>
+                <div className="flex flex-wrap gap-3">
+                  {submission.operatorAvailable && (
+                    <span className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
+                      <Users className="w-4 h-4" />
+                      {t('additionalServices.operator')}
+                    </span>
+                  )}
+                  {submission.deliveryAvailable && (
+                    <span className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                      <Truck className="w-4 h-4" />
+                      {t('additionalServices.delivery')}
+                    </span>
+                  )}
+                  {submission.maintenanceIncluded && (
+                    <span className="flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+                      <Wrench className="w-4 h-4" />
+                      {t('additionalServices.maintenance')}
+                    </span>
+                  )}
+                </div>
               </Card>
             )}
             
@@ -223,7 +301,7 @@ const SubmissionDetailPage = () => {
               <Card variant="info" className="bg-blue-50 border-blue-200">
                 <h2 className="text-lg font-semibold mb-2 flex items-center gap-2 text-blue-800">
                   <AlertCircle className="w-5 h-5" />
-                  Admin Feedback
+                  {t('adminNotes.title')}
                 </h2>
                 <p className="text-blue-700">{submission.adminNotes}</p>
               </Card>
@@ -236,33 +314,37 @@ const SubmissionDetailPage = () => {
             <Card>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <DollarSign className="text-[#D97706]" />
-                Pricing
+                {t('pricing.title')}
               </h2>
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-[#52525B]">Per Day</span>
-                  <span className="text-2xl font-bold text-[#D97706]">${submission.pricePerDay}</span>
+                  <span className="text-[#52525B]">{t('pricing.perHour')}</span>
+                  <span className="text-xl font-bold text-[#D97706]">{formatCurrency(submission.pricePerHour)}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-t border-[#E4E4E7]">
+                  <span className="text-[#52525B]">{t('pricing.perDay')}</span>
+                  <span className="text-2xl font-bold text-[#D97706]">{formatCurrency(submission.pricePerDay)}</span>
                 </div>
                 {submission.pricePerWeek && (
                   <div className="flex justify-between py-2 border-t border-[#E4E4E7]">
-                    <span className="text-[#52525B]">Per Week</span>
-                    <span className="font-medium">${submission.pricePerWeek}</span>
+                    <span className="text-[#52525B]">{t('pricing.perWeek')}</span>
+                    <span className="font-medium">{formatCurrency(submission.pricePerWeek)}</span>
                   </div>
                 )}
                 {submission.pricePerMonth && (
                   <div className="flex justify-between py-2 border-t border-[#E4E4E7]">
-                    <span className="text-[#52525B]">Per Month</span>
-                    <span className="font-medium">${submission.pricePerMonth}</span>
+                    <span className="text-[#52525B]">{t('pricing.perMonth')}</span>
+                    <span className="font-medium">{formatCurrency(submission.pricePerMonth)}</span>
                   </div>
                 )}
                 <div className="flex justify-between py-2 border-t border-[#E4E4E7]">
-                  <span className="text-[#52525B]">Security Deposit</span>
-                  <span className="font-medium">${submission.securityDeposit}</span>
+                  <span className="text-[#52525B]">{t('pricing.securityDeposit')}</span>
+                  <span className="font-medium">{formatCurrency(submission.securityDeposit)}</span>
                 </div>
                 {submission.lateFee && (
                   <div className="flex justify-between py-2 border-t border-[#E4E4E7]">
-                    <span className="text-[#52525B]">Late Fee (per hour)</span>
-                    <span className="font-medium text-red-600">${submission.lateFee}</span>
+                    <span className="text-[#52525B]">{t('pricing.lateFee')}</span>
+                    <span className="font-medium text-red-600">{formatCurrency(submission.lateFee)}</span>
                   </div>
                 )}
               </div>
@@ -272,36 +354,45 @@ const SubmissionDetailPage = () => {
             <Card>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <MapPin className="text-[#D97706]" />
-                Pickup Location
+                {t('location.title')}
               </h2>
-              <p className="text-[#1A1A1A] font-medium mb-2">{submission.location}</p>
+              <div className="space-y-2">
+                <p className="text-[#1A1A1A] font-medium">{submission.city}</p>
+                <p className="text-sm text-[#52525B]">{submission.region} {t('location.region')}</p>
+                <p className="text-sm text-[#52525B]">{submission.subcity}, {submission.woreda}</p>
+                <p className="text-sm text-[#52525B] mt-2">{submission.location}</p>
+              </div>
               {submission.pickupInstructions && (
                 <div className="mt-3 p-3 bg-[#F3F2EE] rounded-lg">
                   <p className="text-sm text-[#52525B]">
-                    <strong>Instructions:</strong> {submission.pickupInstructions}
+                    <strong>{t('location.pickupInstructions')}:</strong> {submission.pickupInstructions}
                   </p>
                 </div>
               )}
-              <div className="mt-3 flex items-center gap-2 text-sm text-[#52525B]">
-                <span>📞 {submission.contactPhone}</span>
+              <div className="mt-3 pt-3 border-t border-[#E4E4E7]">
+                <p className="text-sm font-medium mb-1">{t('location.contactPerson')}</p>
+                <p className="text-sm text-[#52525B]">{submission.contactName}</p>
+                <div className="mt-2 flex items-center gap-2 text-sm text-[#52525B]">
+                  <span>📞 {submission.contactPhone}</span>
+                </div>
               </div>
             </Card>
             
             {/* Stats Card */}
             <Card>
-              <h2 className="text-xl font-semibold mb-4">Performance</h2>
+              <h2 className="text-xl font-semibold mb-4">{t('performance.title')}</h2>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-[#52525B]">Total Views</span>
+                  <span className="text-[#52525B]">{t('performance.profileViews')}</span>
                   <span className="text-2xl font-bold">{submission.views}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-[#52525B]">Total Bookings</span>
+                  <span className="text-[#52525B]">{t('performance.totalBookings')}</span>
                   <span className="text-2xl font-bold">{submission.bookings}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-[#52525B]">Total Earnings</span>
-                  <span className="text-2xl font-bold text-green-600">${submission.earnings}</span>
+                  <span className="text-[#52525B]">{t('performance.totalEarnings')}</span>
+                  <span className="text-2xl font-bold text-green-600">{formatCurrency(submission.earnings)}</span>
                 </div>
               </div>
             </Card>
@@ -310,12 +401,25 @@ const SubmissionDetailPage = () => {
             <div className="space-y-3">
               {submission.status === 'approved' && (
                 <Button className="w-full" size="lg">
-                  View Live Listing
+                  {t('actions.viewLiveListing')}
                 </Button>
               )}
-              <Button variant="secondary" className="w-full" size="lg">
-                Edit Listing
+              <Button variant="secondary" className="w-full" size="lg" iconLeft={<Edit className="w-4 h-4" />}>
+                {t('actions.editEquipment')}
               </Button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Ethiopian Market Note */}
+        <div className="mt-8 p-4 bg-[#FEF3C7] rounded-lg border border-[#FDE68A]">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-[#D97706] mt-0.5" />
+            <div>
+              <h4 className="font-semibold text-[#92400E] text-sm">{t('marketTip.title')}</h4>
+              <p className="text-xs text-[#92400E] mt-1">
+                {t('marketTip.description')}
+              </p>
             </div>
           </div>
         </div>

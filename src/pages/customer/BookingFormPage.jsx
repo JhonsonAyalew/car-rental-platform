@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { toast, Toaster } from 'react-hot-toast';
 import {
-  Car,
   Calendar,
   MapPin,
   DollarSign,
   User,
   Mail,
   Phone,
-  CreditCard,
   Shield,
   Clock,
   AlertCircle,
@@ -21,76 +20,83 @@ import {
   FileText,
   Home,
   Briefcase,
-  Users
+  Users,
+  Package,
+  Wrench,
+  Clock as ClockIcon,
+  HardHat,
+  Truck,
+  Gauge,
+  Star
 } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Spinner from '../../components/ui/Spinner';
+import Badge from '../../components/ui/Badge';
 
 const BookingFormPage = () => {
-  const { carId } = useParams();
+  const { t } = useTranslation('bookingForm');
+  const { equipmentId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [car, setCar] = useState(null);
+  const [equipment, setEquipment] = useState(null);
   const [pickupDate, setPickupDate] = useState('');
   const [dropoffDate, setDropoffDate] = useState('');
   const [totalDays, setTotalDays] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [rentalType, setRentalType] = useState('daily');
+  const [hours, setHours] = useState(8);
   const [formData, setFormData] = useState({
-    // Personal Information
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
-    
-    // Address
     address: '',
     city: '',
-    state: '',
-    zipCode: '',
-    country: 'United States',
-    
-    // Driver Information
+    subcity: '',
+    woreda: '',
+    projectSiteAddress: '',
     driverLicense: '',
-    driverLicenseExpiry: '',
+    operatorExperience: '',
     dateOfBirth: '',
-    
-    // Payment Method
-    paymentMethod: 'credit_card',
-    cardNumber: '',
-    cardName: '',
-    cardExpiry: '',
-    cardCvv: '',
-    
-    // Additional Options
-    insurance: false,
-    gps: false,
-    childSeat: false,
-    additionalDriver: false,
-    
-    // Special Requests
+    operatorIncluded: false,
+    fuelIncluded: false,
+    transportIncluded: false,
+    needMaterials: false,
+    materialType: '',
+    materialQuantity: '',
     specialRequests: '',
-    
-    // Terms Agreement
     agreeTerms: false
   });
   
   const [errors, setErrors] = useState({});
   
-  // Insurance options pricing
+  // Ethiopian cities
+  const ethiopianCities = t('ethiopianCities', { returnObjects: true }) || [
+    'Addis Ababa', 'Adama', 'Bahir Dar', 'Dire Dawa', 'Hawassa', 
+    'Mekelle', 'Gondar', 'Jimma', 'Harar', 'Dessie', 'Debre Markos'
+  ];
+  
   const addOns = {
-    insurance: { label: 'Full Insurance Coverage', price: 15, description: 'Complete protection against damages' },
-    gps: { label: 'GPS Navigation', price: 8, description: 'Built-in GPS navigation system' },
-    childSeat: { label: 'Child Seat', price: 10, description: 'Safety seat for children' },
-    additionalDriver: { label: 'Additional Driver', price: 12, description: 'Add another licensed driver' }
+    operatorIncluded: { label: t('additionalServices.operator.label'), price: 250, description: t('additionalServices.operator.description'), unit: 'day' },
+    fuelIncluded: { label: t('additionalServices.fuel.label'), price: 100, description: t('additionalServices.fuel.description'), unit: 'day' },
+    transportIncluded: { label: t('additionalServices.transport.label'), price: 500, description: t('additionalServices.transport.description'), unit: 'one-time' }
+  };
+  
+  const materialPrices = {
+    cement: { label: t('materials.cement'), price: 120, unit: t('materials.perTon') },
+    sand: { label: t('materials.sand'), price: 45, unit: t('materials.perTon') },
+    gravel: { label: t('materials.gravel'), price: 40, unit: t('materials.perTon') },
+    steel: { label: t('materials.steel'), price: 850, unit: t('materials.perTon') },
+    bricks: { label: t('materials.bricks'), price: 0.50, unit: t('materials.perPiece') },
+    aggregate: { label: t('materials.aggregate'), price: 55, unit: t('materials.perTon') }
   };
   
   useEffect(() => {
-    fetchCarDetails();
+    fetchEquipmentDetails();
     
-    // Set default dates (tomorrow to next week)
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const nextWeek = new Date();
@@ -98,80 +104,97 @@ const BookingFormPage = () => {
     
     setPickupDate(tomorrow.toISOString().split('T')[0]);
     setDropoffDate(nextWeek.toISOString().split('T')[0]);
-  }, [carId]);
+  }, [equipmentId]);
   
   useEffect(() => {
-    if (pickupDate && dropoffDate && car) {
-      const days = Math.ceil((new Date(dropoffDate) - new Date(pickupDate)) / (1000 * 60 * 60 * 24));
-      setTotalDays(days > 0 ? days : 1);
-      
-      let basePrice = car.price * (days > 0 ? days : 1);
-      
-      // Add add-ons
-      if (formData.insurance) basePrice += addOns.insurance.price * (days > 0 ? days : 1);
-      if (formData.gps) basePrice += addOns.gps.price * (days > 0 ? days : 1);
-      if (formData.childSeat) basePrice += addOns.childSeat.price * (days > 0 ? days : 1);
-      if (formData.additionalDriver) basePrice += addOns.additionalDriver.price * (days > 0 ? days : 1);
-      
-      setTotalPrice(basePrice);
+    if ((pickupDate && dropoffDate && equipment) || (rentalType === 'hourly' && hours > 0 && equipment)) {
+      calculateTotalPrice();
     }
-  }, [pickupDate, dropoffDate, car, formData.insurance, formData.gps, formData.childSeat, formData.additionalDriver]);
+  }, [pickupDate, dropoffDate, equipment, formData.operatorIncluded, formData.fuelIncluded, formData.transportIncluded, formData.needMaterials, formData.materialType, formData.materialQuantity, rentalType, hours]);
   
-  const fetchCarDetails = () => {
+  const fetchEquipmentDetails = () => {
     setTimeout(() => {
-      const mockCar = {
-        id: parseInt(carId),
-        name: 'Tesla Model 3',
-        brand: 'Tesla',
-        year: 2023,
-        price: 120,
-        rating: 4.9,
-        image: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=400',
-        location: 'Los Angeles, CA',
-        transmission: 'Automatic',
-        seats: 5,
-        fuelType: 'Electric',
-        owner: {
-          name: 'Sarah Johnson',
-          phone: '+1 234 567 8900',
-          email: 'sarah@example.com'
-        }
+      const equipmentData = {
+        1: { id: 1, name: 'CAT 320 Excavator', brand: 'Caterpillar', price: 8500, hourlyRate: 1200, rating: 4.9, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhjQijEXK7zvAaspMZUERi3MJLmK1KmNYLE-iqM0GhRA&s=10', location: 'Addis Ababa', type: 'Excavator', attachment: 'Shovel', weight: '20 tons', owner: { name: 'Heavy Machinery PLC', phone: '+251 911 234567', email: 'rentals@heavymachinery.com' } },
+        2: { id: 2, name: 'SANY SY335 Excavator', brand: 'SANY', price: 7800, hourlyRate: 1100, rating: 4.8, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhy9e8Ce4B33NOhAnf_ud0B5zuPhrjAM2-KPBjUKse80lSJawCfdlH9JBi&s=10', location: 'Dire Dawa', type: 'Excavator', attachment: 'Hammer', weight: '33 tons', owner: { name: 'SANY Ethiopia', phone: '+251 922 345678', email: 'sany@ethiopia.com' } },
+        3: { id: 3, name: 'CAT 950 Wheel Loader', brand: 'Caterpillar', price: 7200, hourlyRate: 1000, rating: 4.9, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-CZdvnsdrhfl0HNQByq1RFe_nZLOoxwAf8BrvtjhBqw&s=10', location: 'Hawassa', type: 'Loader', attachment: 'Bucket', weight: '25 tons', owner: { name: 'Hawassa Construction', phone: '+251 933 456789', email: 'hawassa@construction.com' } },
+        5: { id: 5, name: 'Komatsu D65 Bulldozer', brand: 'Komatsu', price: 9000, hourlyRate: 1300, rating: 4.8, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUq4zeRFFgxFYxHOghAjsGZqz6HB7MARd79lpTU5JDwQ&s=10', location: 'Adama', type: 'Bulldozer', attachment: 'Blade', weight: '22 tons', owner: { name: 'Adama Heavy Equipment', phone: '+251 944 567890', email: 'adama@heavy.com' } },
+        8: { id: 8, name: 'Liebherr LTM 1050 Crane', brand: 'Liebherr', price: 18000, hourlyRate: 2500, rating: 4.9, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFyFrGooVS_TVdCm5CrnKzFwCgSZXiTp0PSij34BpBHQ&s=10', location: 'Addis Ababa', type: 'Crane', attachment: 'Hook', weight: '50 tons', owner: { name: 'Tower Crane PLC', phone: '+251 955 678901', email: 'tower@crane.com' } },
+        12: { id: 12, name: 'Sinotruk HOWO 371', brand: 'Sinotruk', price: 4800, hourlyRate: 680, rating: 4.6, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcFJuBHGZHG9jFGPh8LBA-jsDeaPx8_cDb_lghfMg7UQ&s=10', location: 'Addis Ababa', type: 'Dump Truck', attachment: 'Tipper', weight: '25 tons', owner: { name: 'Sinotruk Ethiopia', phone: '+251 966 789012', email: 'sinotruk@ethiopia.com' } }
       };
-      setCar(mockCar);
+      
+      const selectedEquipment = equipmentData[equipmentId] || {
+        id: parseInt(equipmentId),
+        name: 'Heavy Equipment',
+        brand: 'Various Brands',
+        price: 5000,
+        hourlyRate: 700,
+        rating: 4.5,
+        image: 'https://via.placeholder.com/400',
+        location: 'Addis Ababa',
+        type: 'Heavy Equipment',
+        attachment: 'Standard',
+        weight: 'Various',
+        owner: { name: 'Equipment Rental Co.', phone: '+251 911 000000', email: 'rentals@equipment.com' }
+      };
+      
+      setEquipment(selectedEquipment);
       setLoading(false);
     }, 500);
+  };
+  
+  const calculateTotalPrice = () => {
+    let basePrice = 0;
+    
+    if (rentalType === 'daily') {
+      const days = Math.ceil((new Date(dropoffDate) - new Date(pickupDate)) / (1000 * 60 * 60 * 24));
+      const validDays = days > 0 ? days : 1;
+      setTotalDays(validDays);
+      basePrice = equipment.price * validDays;
+      
+      if (formData.operatorIncluded) basePrice += addOns.operatorIncluded.price * validDays;
+      if (formData.fuelIncluded) basePrice += addOns.fuelIncluded.price * validDays;
+      if (formData.transportIncluded) basePrice += addOns.transportIncluded.price;
+    } else {
+      const validHours = hours > 0 ? hours : 1;
+      setHours(validHours);
+      basePrice = equipment.hourlyRate * validHours;
+      
+      if (formData.operatorIncluded) basePrice += (addOns.operatorIncluded.price / 8) * validHours;
+      if (formData.fuelIncluded) basePrice += (addOns.fuelIncluded.price / 8) * validHours;
+      if (formData.transportIncluded) basePrice += addOns.transportIncluded.price;
+    }
+    
+    if (formData.needMaterials && formData.materialType && formData.materialQuantity) {
+      const material = materialPrices[formData.materialType];
+      if (material) {
+        basePrice += material.price * parseFloat(formData.materialQuantity);
+      }
+    }
+    
+    setTotalPrice(basePrice);
   };
   
   const validateForm = () => {
     const newErrors = {};
     
-    // Personal Information
-    if (!formData.firstName) newErrors.firstName = 'First name is required';
-    if (!formData.lastName) newErrors.lastName = 'Last name is required';
-    if (!formData.email) newErrors.email = 'Email is required';
-    if (!formData.phone) newErrors.phone = 'Phone number is required';
+    if (!formData.firstName) newErrors.firstName = t('validation.firstNameRequired');
+    if (!formData.lastName) newErrors.lastName = t('validation.lastNameRequired');
+    if (!formData.email) newErrors.email = t('validation.emailRequired');
+    if (!formData.phone) newErrors.phone = t('validation.phoneRequired');
+    if (!formData.address) newErrors.address = t('validation.addressRequired');
+    if (!formData.city) newErrors.city = t('validation.cityRequired');
+    if (!formData.subcity) newErrors.subcity = t('validation.subcityRequired');
+    if (!formData.projectSiteAddress) newErrors.projectSiteAddress = t('validation.projectSiteRequired');
+    if (!formData.driverLicense) newErrors.driverLicense = t('validation.licenseRequired');
+    if (!formData.dateOfBirth) newErrors.dateOfBirth = t('validation.dobRequired');
     
-    // Address
-    if (!formData.address) newErrors.address = 'Address is required';
-    if (!formData.city) newErrors.city = 'City is required';
-    if (!formData.state) newErrors.state = 'State is required';
-    if (!formData.zipCode) newErrors.zipCode = 'ZIP code is required';
-    
-    // Driver License
-    if (!formData.driverLicense) newErrors.driverLicense = 'Driver license number is required';
-    if (!formData.driverLicenseExpiry) newErrors.driverLicenseExpiry = 'License expiry date is required';
-    if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
-    
-    // Payment (if credit card selected)
-    if (formData.paymentMethod === 'credit_card') {
-      if (!formData.cardNumber) newErrors.cardNumber = 'Card number is required';
-      if (!formData.cardName) newErrors.cardName = 'Cardholder name is required';
-      if (!formData.cardExpiry) newErrors.cardExpiry = 'Expiry date is required';
-      if (!formData.cardCvv) newErrors.cardCvv = 'CVV is required';
+    if (formData.needMaterials) {
+      if (!formData.materialType) newErrors.materialType = t('validation.materialTypeRequired');
+      if (!formData.materialQuantity) newErrors.materialQuantity = t('validation.materialQuantityRequired');
     }
     
-    // Terms
-    if (!formData.agreeTerms) newErrors.agreeTerms = 'You must agree to the terms and conditions';
+    if (!formData.agreeTerms) newErrors.agreeTerms = t('validation.termsRequired');
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -181,16 +204,15 @@ const BookingFormPage = () => {
     e.preventDefault();
     
     if (!validateForm()) {
-      toast.error('Please fix the errors before continuing');
+      toast.error(t('toast.fixErrors'));
       return;
     }
     
     setSubmitting(true);
-    toast.loading('Processing your booking...', { id: 'booking' });
+    toast.loading(t('toast.submitting'), { id: 'booking' });
     
-    // Simulate API call
     setTimeout(() => {
-      toast.success('Booking confirmed successfully!', { id: 'booking' });
+      toast.success(t('toast.success'), { id: 'booking' });
       setTimeout(() => {
         navigate('/customer/bookings');
       }, 2000);
@@ -199,7 +221,22 @@ const BookingFormPage = () => {
   
   const getAddOnPrice = (addOnKey) => {
     if (!formData[addOnKey]) return 0;
-    return addOns[addOnKey].price * totalDays;
+    if (rentalType === 'daily') {
+      if (addOnKey === 'transportIncluded') return addOns.transportIncluded.price;
+      return addOns[addOnKey].price * totalDays;
+    } else {
+      if (addOnKey === 'transportIncluded') return addOns.transportIncluded.price;
+      return (addOns[addOnKey].price / 8) * hours;
+    }
+  };
+  
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-ET', {
+      style: 'currency',
+      currency: 'ETB',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
   };
   
   if (loading) {
@@ -215,72 +252,123 @@ const BookingFormPage = () => {
       <Toaster position="top-right" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="mb-8">
           <button 
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-[#52525B] hover:text-[#D97706] transition mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Car Details
+            {t('page.backButton')}
           </button>
           
-          <h1 className="text-3xl font-bold text-[#1A1A1A] mb-2">Complete Your Booking</h1>
-          <p className="text-[#52525B]">Fill in the details to confirm your rental</p>
+          <h1 className="text-3xl font-bold text-[#1A1A1A] mb-2">{t('page.title')}</h1>
+          <p className="text-[#52525B]">{t('page.subtitle')}</p>
         </div>
         
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Booking Form */}
           <div className="lg:col-span-2 space-y-6">
             <form onSubmit={handleSubmit}>
-              {/* Car Summary Card */}
+              {/* Equipment Summary Card */}
               <Card>
                 <div className="flex gap-4">
-                  <img src={car.image} alt={car.name} className="w-24 h-24 rounded-lg object-cover" />
+                  <img 
+                    src={equipment.image} 
+                    alt={equipment.name} 
+                    className="w-24 h-24 rounded-lg object-cover"
+                    onError={(e) => {
+                      e.target.src = 'https://via.placeholder.com/128x128?text=Equipment';
+                    }}
+                  />
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{car.name}</h3>
-                    <p className="text-sm text-[#52525B]">{car.year} • {car.brand}</p>
-                    <div className="flex items-center gap-3 mt-2 text-sm">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold text-lg">{equipment.name}</h3>
+                      <Badge variant="approved">⭐ {equipment.rating}</Badge>
+                    </div>
+                    <p className="text-sm text-[#52525B]">{equipment.brand} • {equipment.type}</p>
+                    <div className="flex flex-wrap items-center gap-3 mt-2 text-sm">
                       <div className="flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
-                        <span>{car.location}</span>
+                        <span>{equipment.location}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
-                        <span>{car.seats} seats</span>
+                        <Package className="w-3 h-3" />
+                        <span>{equipment.weight}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Wrench className="w-3 h-3" />
+                        <span>{equipment.attachment}</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </Card>
               
-              {/* Rental Dates */}
+              {/* Rental Type Selection */}
               <Card>
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Calendar className="text-[#D97706]" />
-                  Rental Dates
+                  <ClockIcon className="text-[#D97706]" />
+                  {t('rentalType.title')}
                 </h2>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Input
-                    type="date"
-                    label="Pickup Date"
-                    value={pickupDate}
-                    onChange={(e) => setPickupDate(e.target.value)}
-                    required
-                  />
-                  <Input
-                    type="date"
-                    label="Dropoff Date"
-                    value={dropoffDate}
-                    onChange={(e) => setDropoffDate(e.target.value)}
-                    required
-                  />
+                <div className="flex gap-4 mb-4">
+                  <label className="flex items-center gap-2 p-3 border border-[#E4E4E7] rounded-lg cursor-pointer hover:bg-[#F9F8F6] flex-1">
+                    <input
+                      type="radio"
+                      name="rentalType"
+                      value="daily"
+                      checked={rentalType === 'daily'}
+                      onChange={() => setRentalType('daily')}
+                      className="text-[#D97706]"
+                    />
+                    <div>
+                      <span className="font-medium">{t('rentalType.daily')}</span>
+                      <p className="text-xs text-[#52525B]">{formatCurrency(equipment.price)}{t('rentalType.perDay')}</p>
+                    </div>
+                  </label>
+                  <label className="flex items-center gap-2 p-3 border border-[#E4E4E7] rounded-lg cursor-pointer hover:bg-[#F9F8F6] flex-1">
+                    <input
+                      type="radio"
+                      name="rentalType"
+                      value="hourly"
+                      checked={rentalType === 'hourly'}
+                      onChange={() => setRentalType('hourly')}
+                      className="text-[#D97706]"
+                    />
+                    <div>
+                      <span className="font-medium">{t('rentalType.hourly')}</span>
+                      <p className="text-xs text-[#52525B]">{formatCurrency(equipment.hourlyRate)}{t('rentalType.perHour')}</p>
+                    </div>
+                  </label>
                 </div>
-                {totalDays > 0 && (
-                  <div className="mt-3 p-3 bg-[#FEF3C7] rounded-lg">
-                    <p className="text-sm text-[#92400E]">
-                      Total rental period: {totalDays} day{totalDays > 1 ? 's' : ''}
-                    </p>
+                
+                {rentalType === 'daily' ? (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Input
+                      type="date"
+                      label={t('rentalType.pickupDate')}
+                      value={pickupDate}
+                      onChange={(e) => setPickupDate(e.target.value)}
+                      required
+                    />
+                    <Input
+                      type="date"
+                      label={t('rentalType.returnDate')}
+                      value={dropoffDate}
+                      onChange={(e) => setDropoffDate(e.target.value)}
+                      required
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <Input
+                      type="number"
+                      label={t('rentalType.numberOfHours')}
+                      value={hours}
+                      onChange={(e) => setHours(parseInt(e.target.value))}
+                      min="1"
+                      max="24"
+                      required
+                    />
                   </div>
                 )}
               </Card>
@@ -289,25 +377,25 @@ const BookingFormPage = () => {
               <Card>
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <User className="text-[#D97706]" />
-                  Personal Information
+                  {t('personalInfo.title')}
                 </h2>
                 <div className="grid md:grid-cols-2 gap-4">
                   <Input
-                    label="First Name"
+                    label={t('personalInfo.firstName')}
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     error={errors.firstName}
                     required
                   />
                   <Input
-                    label="Last Name"
+                    label={t('personalInfo.lastName')}
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                     error={errors.lastName}
                     required
                   />
                   <Input
-                    label="Email Address"
+                    label={t('personalInfo.email')}
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -315,8 +403,9 @@ const BookingFormPage = () => {
                     required
                   />
                   <Input
-                    label="Phone Number"
+                    label={t('personalInfo.phone')}
                     type="tel"
+                    placeholder="+251 XXX XXX XXX"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     error={errors.phone}
@@ -325,55 +414,82 @@ const BookingFormPage = () => {
                 </div>
               </Card>
               
-              {/* Address */}
+              {/* Address Information - Ethiopian Format */}
               <Card>
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <Home className="text-[#D97706]" />
-                  Address
+                  {t('addressInfo.title')}
                 </h2>
                 <div className="space-y-4">
                   <Input
-                    label="Street Address"
+                    label={t('addressInfo.streetAddress')}
+                    placeholder="House number, street name"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     error={errors.address}
                     required
                   />
                   <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#1A1A1A] mb-2">{t('addressInfo.city')}</label>
+                      <select
+                        value={formData.city}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        className={`w-full px-3 py-2 border rounded-lg bg-white focus:outline-none focus:border-[#D97706] ${errors.city ? 'border-red-500' : 'border-[#E4E4E7]'}`}
+                      >
+                        <option value="">{t('addressInfo.selectCity')}</option>
+                        {ethiopianCities.map(city => (
+                          <option key={city} value={city}>{city}</option>
+                        ))}
+                      </select>
+                      {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+                    </div>
                     <Input
-                      label="City"
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      error={errors.city}
+                      label={t('addressInfo.subcity')}
+                      placeholder="e.g., Bole, Kazanchis"
+                      value={formData.subcity}
+                      onChange={(e) => setFormData({ ...formData, subcity: e.target.value })}
+                      error={errors.subcity}
                       required
                     />
                     <Input
-                      label="State"
-                      value={formData.state}
-                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                      error={errors.state}
-                      required
-                    />
-                    <Input
-                      label="ZIP Code"
-                      value={formData.zipCode}
-                      onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                      error={errors.zipCode}
-                      required
+                      label={t('addressInfo.woreda')}
+                      placeholder="e.g., Woreda 03"
+                      value={formData.woreda}
+                      onChange={(e) => setFormData({ ...formData, woreda: e.target.value })}
                     />
                   </div>
                 </div>
               </Card>
               
-              {/* Driver Information */}
+              {/* Project Site Address */}
+              <Card>
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Briefcase className="text-[#D97706]" />
+                  {t('projectSite.title')}
+                </h2>
+                <textarea
+                  className="w-full px-3 py-2 border border-[#E4E4E7] rounded-lg focus:outline-none focus:border-[#D97706]"
+                  rows="2"
+                  placeholder={t('projectSite.placeholder')}
+                  value={formData.projectSiteAddress}
+                  onChange={(e) => setFormData({ ...formData, projectSiteAddress: e.target.value })}
+                />
+                {errors.projectSiteAddress && (
+                  <p className="text-red-500 text-xs mt-1">{errors.projectSiteAddress}</p>
+                )}
+              </Card>
+              
+              {/* Operator Information */}
               <Card>
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <FileText className="text-[#D97706]" />
-                  Driver License Information
+                  {t('operatorInfo.title')}
                 </h2>
                 <div className="grid md:grid-cols-2 gap-4">
                   <Input
-                    label="Driver License Number"
+                    label={t('operatorInfo.licenseNumber')}
+                    placeholder="e.g., 123456789"
                     value={formData.driverLicense}
                     onChange={(e) => setFormData({ ...formData, driverLicense: e.target.value })}
                     error={errors.driverLicense}
@@ -381,20 +497,29 @@ const BookingFormPage = () => {
                   />
                   <Input
                     type="date"
-                    label="License Expiry Date"
-                    value={formData.driverLicenseExpiry}
-                    onChange={(e) => setFormData({ ...formData, driverLicenseExpiry: e.target.value })}
-                    error={errors.driverLicenseExpiry}
-                    required
-                  />
-                  <Input
-                    type="date"
-                    label="Date of Birth"
+                    label={t('operatorInfo.dateOfBirth')}
                     value={formData.dateOfBirth}
                     onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
                     error={errors.dateOfBirth}
                     required
                   />
+                  <div className="md:col-span-2">
+                    <label className="block text-[13px] font-medium text-[#1A1A1A] mb-2">
+                      {t('operatorInfo.experience')}
+                    </label>
+                    <select
+                      value={formData.operatorExperience}
+                      onChange={(e) => setFormData({ ...formData, operatorExperience: e.target.value })}
+                      className="w-full px-3 py-2 border border-[#E4E4E7] rounded-lg bg-white"
+                    >
+                      <option value="">{t('operatorInfo.experiencePlaceholder')}</option>
+                      <option value="0-1">{t('operatorInfo.lessThan1Year')}</option>
+                      <option value="1-3">{t('operatorInfo.years1to3')}</option>
+                      <option value="3-5">{t('operatorInfo.years3to5')}</option>
+                      <option value="5-10">{t('operatorInfo.years5to10')}</option>
+                      <option value="10+">{t('operatorInfo.years10plus')}</option>
+                    </select>
+                  </div>
                 </div>
               </Card>
               
@@ -402,7 +527,7 @@ const BookingFormPage = () => {
               <Card>
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <Gift className="text-[#D97706]" />
-                  Additional Options
+                  {t('additionalServices.title')}
                 </h2>
                 <div className="space-y-3">
                   {Object.entries(addOns).map(([key, option]) => (
@@ -416,7 +541,7 @@ const BookingFormPage = () => {
                       <div className="flex-1">
                         <div className="flex justify-between">
                           <span className="font-medium">{option.label}</span>
-                          <span className="text-[#D97706]">+${option.price}/day</span>
+                          <span className="text-[#D97706]">+{formatCurrency(option.price)}/{option.unit === 'one-time' ? t('additionalServices.oneTime') : t(`additionalServices.${option.unit}`)}</span>
                         </div>
                         <p className="text-sm text-[#52525B]">{option.description}</p>
                       </div>
@@ -425,98 +550,86 @@ const BookingFormPage = () => {
                 </div>
               </Card>
               
-              {/* Payment Method */}
+              {/* Construction Materials Add-on */}
               <Card>
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <CreditCard className="text-[#D97706]" />
-                  Payment Method
+                  <Package className="text-[#D97706]" />
+                  {t('materials.title')}
                 </h2>
+                <label className="flex items-center gap-3 mb-4">
+                  <input
+                    type="checkbox"
+                    checked={formData.needMaterials}
+                    onChange={(e) => setFormData({ ...formData, needMaterials: e.target.checked })}
+                    className="text-[#D97706] rounded"
+                  />
+                  <span>{t('materials.checkbox')}</span>
+                </label>
                 
-                <div className="space-y-4">
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="credit_card"
-                        checked={formData.paymentMethod === 'credit_card'}
-                        onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                        className="text-[#D97706]"
-                      />
-                      <span>Credit / Debit Card</span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="paypal"
-                        checked={formData.paymentMethod === 'paypal'}
-                        onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                        className="text-[#D97706]"
-                      />
-                      <span>PayPal</span>
-                    </label>
-                  </div>
-                  
-                  {formData.paymentMethod === 'credit_card' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="space-y-4"
-                    >
-                      <Input
-                        label="Card Number"
-                        placeholder="1234 5678 9012 3456"
-                        value={formData.cardNumber}
-                        onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
-                        error={errors.cardNumber}
-                        required
-                      />
-                      <Input
-                        label="Cardholder Name"
-                        placeholder="Name on card"
-                        value={formData.cardName}
-                        onChange={(e) => setFormData({ ...formData, cardName: e.target.value })}
-                        error={errors.cardName}
-                        required
-                      />
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <Input
-                          label="Expiry Date"
-                          placeholder="MM/YY"
-                          value={formData.cardExpiry}
-                          onChange={(e) => setFormData({ ...formData, cardExpiry: e.target.value })}
-                          error={errors.cardExpiry}
-                          required
-                        />
-                        <Input
-                          label="CVV"
-                          type="password"
-                          placeholder="123"
-                          value={formData.cardCvv}
-                          onChange={(e) => setFormData({ ...formData, cardCvv: e.target.value })}
-                          error={errors.cardCvv}
-                          required
-                        />
+                {formData.needMaterials && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-4"
+                  >
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[13px] font-medium text-[#1A1A1A] mb-2">{t('materials.materialType')}</label>
+                        <select
+                          value={formData.materialType}
+                          onChange={(e) => setFormData({ ...formData, materialType: e.target.value })}
+                          className="w-full px-3 py-2 border border-[#E4E4E7] rounded-lg bg-white"
+                        >
+                          <option value="">{t('materials.selectMaterial')}</option>
+                          {Object.entries(materialPrices).map(([key, material]) => (
+                            <option key={key} value={key}>
+                              {material.label} - {formatCurrency(material.price)}/{material.unit}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.materialType && (
+                          <p className="text-red-500 text-xs mt-1">{errors.materialType}</p>
+                        )}
                       </div>
-                    </motion.div>
-                  )}
-                </div>
+                      <Input
+                        label={`${t('materials.quantity')} (${materialPrices[formData.materialType]?.unit || t('materials.perTon')})`}
+                        type="number"
+                        placeholder="Enter quantity"
+                        value={formData.materialQuantity}
+                        onChange={(e) => setFormData({ ...formData, materialQuantity: e.target.value })}
+                        error={errors.materialQuantity}
+                      />
+                    </div>
+                  </motion.div>
+                )}
               </Card>
               
               {/* Special Requests */}
               <Card>
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <Info className="text-[#D97706]" />
-                  Special Requests (Optional)
+                  {t('specialRequests.title')}
                 </h2>
                 <textarea
                   className="w-full px-3 py-2 border border-[#E4E4E7] rounded-lg focus:outline-none focus:border-[#D97706]"
                   rows="3"
-                  placeholder="Any special requests or notes for the owner..."
+                  placeholder={t('specialRequests.placeholder')}
                   value={formData.specialRequests}
                   onChange={(e) => setFormData({ ...formData, specialRequests: e.target.value })}
                 />
+              </Card>
+              
+              {/* Payment Notice */}
+              <Card className="bg-blue-50 border-blue-200">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-blue-800 mb-1">{t('paymentNotice.title')}</h3>
+                    <p className="text-sm text-blue-700">
+                      {t('paymentNotice.description')}
+                    </p>
+                  </div>
+                </div>
               </Card>
               
               {/* Terms Agreement */}
@@ -530,10 +643,10 @@ const BookingFormPage = () => {
                   />
                   <div>
                     <span className="text-sm">
-                      I agree to the{' '}
-                      <a href="#" className="text-[#D97706] hover:underline">Terms and Conditions</a>
-                      {' '}and{' '}
-                      <a href="#" className="text-[#D97706] hover:underline">Cancellation Policy</a>
+                      {t('termsAgreement.confirmText')}{' '}
+                      <a href="#" className="text-[#D97706] hover:underline">{t('termsAgreement.termsAndConditions')}</a>
+                      {' '}{t('termsAgreement.and')}{' '}
+                      <a href="#" className="text-[#D97706] hover:underline">{t('termsAgreement.rentalAgreement')}</a>
                     </span>
                     {errors.agreeTerms && (
                       <p className="text-red-500 text-xs mt-1">{errors.agreeTerms}</p>
@@ -543,7 +656,7 @@ const BookingFormPage = () => {
               </Card>
               
               <Button type="submit" size="lg" className="w-full" isLoading={submitting}>
-                Confirm Booking - ${totalPrice}
+                {t('submitButton')} - {formatCurrency(totalPrice)}
               </Button>
             </form>
           </div>
@@ -552,78 +665,95 @@ const BookingFormPage = () => {
           <div className="lg:col-span-1">
             <div className="sticky top-24">
               <Card>
-                <h2 className="text-lg font-semibold mb-4">Booking Summary</h2>
+                <h2 className="text-lg font-semibold mb-4">{t('bookingSummary.title')}</h2>
                 
                 <div className="space-y-3 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-[#52525B]">Car Rental ({totalDays} days)</span>
-                    <span>${car.price} × {totalDays} = ${car.price * totalDays}</span>
-                  </div>
-                  
-                  {formData.insurance && (
+                  {rentalType === 'daily' ? (
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#52525B]">Insurance Coverage</span>
-                      <span>+${getAddOnPrice('insurance')}</span>
+                      <span className="text-[#52525B]">{t('bookingSummary.equipmentRental')} ({totalDays} {t('bookingSummary.days')})</span>
+                      <span>{formatCurrency(equipment.price)} × {totalDays} = {formatCurrency(equipment.price * totalDays)}</span>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#52525B]">{t('bookingSummary.equipmentRental')} ({hours} {t('bookingSummary.hours')})</span>
+                      <span>{formatCurrency(equipment.hourlyRate)} × {hours} = {formatCurrency(equipment.hourlyRate * hours)}</span>
                     </div>
                   )}
                   
-                  {formData.gps && (
+                  {formData.operatorIncluded && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#52525B]">GPS Navigation</span>
-                      <span>+${getAddOnPrice('gps')}</span>
+                      <span className="text-[#52525B]">{addOns.operatorIncluded.label}</span>
+                      <span>+{formatCurrency(getAddOnPrice('operatorIncluded'))}</span>
                     </div>
                   )}
                   
-                  {formData.childSeat && (
+                  {formData.fuelIncluded && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#52525B]">Child Seat</span>
-                      <span>+${getAddOnPrice('childSeat')}</span>
+                      <span className="text-[#52525B]">{addOns.fuelIncluded.label}</span>
+                      <span>+{formatCurrency(getAddOnPrice('fuelIncluded'))}</span>
                     </div>
                   )}
                   
-                  {formData.additionalDriver && (
+                  {formData.transportIncluded && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-[#52525B]">Additional Driver</span>
-                      <span>+${getAddOnPrice('additionalDriver')}</span>
+                      <span className="text-[#52525B]">{addOns.transportIncluded.label}</span>
+                      <span>+{formatCurrency(getAddOnPrice('transportIncluded'))}</span>
+                    </div>
+                  )}
+                  
+                  {formData.needMaterials && formData.materialType && formData.materialQuantity && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-[#52525B]">
+                        {t('materials.title')} ({materialPrices[formData.materialType]?.label})
+                      </span>
+                      <span>+{formatCurrency(materialPrices[formData.materialType]?.price * parseFloat(formData.materialQuantity || 0))}</span>
                     </div>
                   )}
                 </div>
                 
                 <div className="border-t border-[#E4E4E7] pt-3 mb-4">
                   <div className="flex justify-between font-semibold text-lg">
-                    <span>Total</span>
-                    <span className="text-[#D97706]">${totalPrice}</span>
+                    <span>{t('bookingSummary.totalEstimate')}</span>
+                    <span className="text-[#D97706]">{formatCurrency(totalPrice)}</span>
                   </div>
-                  <p className="text-xs text-[#A1A1AA] mt-1">Taxes included</p>
+                  <p className="text-xs text-[#A1A1AA] mt-1">{t('bookingSummary.finalPriceNote')}</p>
                 </div>
                 
                 <div className="space-y-2 text-xs text-[#52525B]">
                   <div className="flex items-center gap-2">
                     <Shield className="w-3 h-3 text-green-500" />
-                    <span>Secure payment protected</span>
+                    <span>{t('bookingSummary.protected')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="w-3 h-3 text-blue-500" />
-                    <span>Free cancellation up to 24 hours before pickup</span>
+                    <span>{t('bookingSummary.freeCancellation')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-3 h-3 text-green-500" />
-                    <span>No hidden fees</span>
+                    <span>{t('bookingSummary.contactForPayment')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Truck className="w-3 h-3 text-[#D97706]" />
+                    <span>{t('bookingSummary.deliveryAvailable')}</span>
                   </div>
                 </div>
               </Card>
               
               {/* Need Help Card */}
               <Card className="mt-4 bg-[#FEF3C7]">
-                <h3 className="font-semibold mb-2">Need Help?</h3>
-                <p className="text-sm text-[#92400E] mb-3">Contact our support team</p>
+                <h3 className="font-semibold mb-2">{t('needHelp.title')}</h3>
+                <p className="text-sm text-[#92400E] mb-3">{t('needHelp.subtitle')}</p>
                 <div className="flex items-center gap-2 text-sm">
                   <Phone className="w-4 h-4" />
-                  <span>+1 (800) 123-4567</span>
+                  <span>+251 911 234567</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm mt-1">
                   <Mail className="w-4 h-4" />
-                  <span>support@carrental.com</span>
+                  <span>support@equipmentrental.com</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm mt-1">
+                  <Clock className="w-4 h-4" />
+                  <span>{t('needHelp.hours')}</span>
                 </div>
               </Card>
             </div>

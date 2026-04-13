@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast, Toaster } from 'react-hot-toast';
 import {
@@ -26,6 +27,7 @@ import Spinner from '../../components/ui/Spinner';
 import Modal from '../../components/ui/Modal';
 
 const CarListingsPage = () => {
+  const { t } = useTranslation('carListings');
   const [cars, setCars] = useState([]);
   const [filteredCars, setFilteredCars] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -191,20 +193,20 @@ const CarListingsPage = () => {
 
   const getStatusBadge = (status) => {
     const badges = {
-      available: <Badge variant="approved">✓ Available</Badge>,
-      booked: <Badge variant="pending">📅 Booked</Badge>,
-      maintenance: <Badge variant="rejected">🔧 Maintenance</Badge>,
-      unavailable: <Badge variant="cancelled">✗ Unavailable</Badge>
+      available: <Badge variant="approved">✓ {t('status.available')}</Badge>,
+      booked: <Badge variant="pending">📅 {t('status.booked')}</Badge>,
+      maintenance: <Badge variant="rejected">🔧 {t('status.maintenance')}</Badge>,
+      unavailable: <Badge variant="cancelled">✗ {t('status.unavailable')}</Badge>
     };
     return badges[status] || badges.available;
   };
 
   const handleDeleteCar = async () => {
-    toast.loading('Deleting car...', { id: 'delete' });
+    toast.loading(t('messages.deleting'), { id: 'delete' });
     setTimeout(() => {
       const updatedCars = cars.filter(c => c.id !== selectedCar.id);
       setCars(updatedCars);
-      toast.success('Car deleted successfully!', { id: 'delete' });
+      toast.success(t('messages.deleteSuccess'), { id: 'delete' });
       setShowDeleteModal(false);
       setSelectedCar(null);
     }, 1500);
@@ -215,7 +217,7 @@ const CarListingsPage = () => {
       car.id === carId ? { ...car, status: newStatus } : car
     );
     setCars(updatedCars);
-    toast.success(`Status updated to ${newStatus}`);
+    toast.success(t('messages.statusUpdated', { status: t(`status.${newStatus}`) }));
   };
 
   const stats = {
@@ -241,18 +243,18 @@ const CarListingsPage = () => {
       
       <div className="flex flex-wrap justify-between items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">Car Listings</h1>
-          <p className="text-[#52525B] mt-1">Manage all car listings on the platform</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A]">{t('page.title')}</h1>
+          <p className="text-[#52525B] mt-1">{t('page.subtitle')}</p>
         </div>
         
         <div className="flex gap-3">
           <Link to="/admin/cars/add">
             <Button iconLeft={<Plus className="w-4 h-4" />}>
-              Add New Car
+              {t('buttons.addNew')}
             </Button>
           </Link>
           <Button variant="ghost" iconLeft={<Download className="w-4 h-4" />}>
-            Export
+            {t('buttons.export')}
           </Button>
         </div>
       </div>
@@ -260,23 +262,23 @@ const CarListingsPage = () => {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card className="text-center">
           <p className="text-2xl font-bold text-[#1A1A1A]">{stats.total}</p>
-          <p className="text-sm text-[#52525B]">Total Cars</p>
+          <p className="text-sm text-[#52525B]">{t('stats.totalCars')}</p>
         </Card>
         <Card className="text-center">
           <p className="text-2xl font-bold text-green-600">{stats.available}</p>
-          <p className="text-sm text-[#52525B]">Available</p>
+          <p className="text-sm text-[#52525B]">{t('stats.available')}</p>
         </Card>
         <Card className="text-center">
           <p className="text-2xl font-bold text-yellow-600">{stats.booked}</p>
-          <p className="text-sm text-[#52525B]">Booked</p>
+          <p className="text-sm text-[#52525B]">{t('stats.booked')}</p>
         </Card>
         <Card className="text-center">
           <p className="text-2xl font-bold text-red-600">{stats.maintenance}</p>
-          <p className="text-sm text-[#52525B]">Maintenance</p>
+          <p className="text-sm text-[#52525B]">{t('stats.maintenance')}</p>
         </Card>
         <Card className="text-center">
           <p className="text-2xl font-bold text-[#D97706]">${(stats.totalRevenue / 1000).toFixed(0)}k</p>
-          <p className="text-sm text-[#52525B]">Total Revenue</p>
+          <p className="text-sm text-[#52525B]">{t('stats.totalRevenue')}</p>
         </Card>
       </div>
 
@@ -284,7 +286,7 @@ const CarListingsPage = () => {
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-[200px]">
             <Input
-              placeholder="Search by car name, brand, or owner..."
+              placeholder={t('filters.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               icon={<Search className="w-4 h-4" />}
@@ -296,10 +298,10 @@ const CarListingsPage = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-2 border border-[#E4E4E7] rounded-lg bg-white text-[#1A1A1A] focus:outline-none focus:border-[#D97706]"
           >
-            <option value="all">All Status</option>
-            <option value="available">Available</option>
-            <option value="booked">Booked</option>
-            <option value="maintenance">Maintenance</option>
+            <option value="all">{t('filters.allStatus')}</option>
+            <option value="available">{t('filters.available')}</option>
+            <option value="booked">{t('filters.booked')}</option>
+            <option value="maintenance">{t('filters.maintenance')}</option>
           </select>
           
           <select
@@ -307,11 +309,11 @@ const CarListingsPage = () => {
             onChange={(e) => setSortBy(e.target.value)}
             className="px-3 py-2 border border-[#E4E4E7] rounded-lg bg-white text-[#1A1A1A] focus:outline-none focus:border-[#D97706]"
           >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="popular">Most Popular</option>
+            <option value="newest">{t('filters.newest')}</option>
+            <option value="oldest">{t('filters.oldest')}</option>
+            <option value="price-high">{t('filters.priceHigh')}</option>
+            <option value="price-low">{t('filters.priceLow')}</option>
+            <option value="popular">{t('filters.popular')}</option>
           </select>
         </div>
       </Card>
@@ -334,7 +336,7 @@ const CarListingsPage = () => {
                   />
                   {car.featured && (
                     <div className="absolute top-2 left-2">
-                      <Badge variant="approved">⭐ Featured</Badge>
+                      <Badge variant="approved">⭐ {t('card.featured')}</Badge>
                     </div>
                   )}
                   <div className="absolute top-2 right-2">
@@ -350,7 +352,7 @@ const CarListingsPage = () => {
                     </div>
                     <div className="text-right">
                       <p className="text-xl font-bold text-[#D97706]">${car.pricePerDay}</p>
-                      <p className="text-xs text-[#A1A1AA]">per day</p>
+                      <p className="text-xs text-[#A1A1AA]">{t('card.perDay')}</p>
                     </div>
                   </div>
                   
@@ -361,7 +363,7 @@ const CarListingsPage = () => {
                     </div>
                     <div className="flex items-center gap-1">
                       <User className="w-3 h-3" />
-                      <span>{car.seats} seats</span>
+                      <span>{car.seats} {t('card.seats')}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <MapPin className="w-3 h-3" />
@@ -373,10 +375,10 @@ const CarListingsPage = () => {
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                       <span>{car.rating}</span>
-                      <span className="text-[#A1A1AA]">({car.totalBookings} bookings)</span>
+                      <span className="text-[#A1A1AA]">({car.totalBookings} {t('card.bookings')})</span>
                     </div>
                     <div className="text-[#52525B]">
-                      <span className="font-medium">${car.totalRevenue}</span> earned
+                      <span className="font-medium">${car.totalRevenue}</span> {t('card.earned')}
                     </div>
                   </div>
                   
@@ -391,12 +393,12 @@ const CarListingsPage = () => {
                       }}
                     >
                       <Eye className="w-4 h-4 mr-1" />
-                      View
+                      {t('card.view')}
                     </Button>
                     <Link to={`/admin/cars/edit/${car.id}`} className="flex-1">
                       <Button variant="ghost" size="sm" className="w-full">
                         <Edit className="w-4 h-4 mr-1" />
-                        Edit
+                        {t('card.edit')}
                       </Button>
                     </Link>
                     <Button 
@@ -437,60 +439,60 @@ const CarListingsPage = () => {
             
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <h3 className="font-semibold mb-2">Car Details</h3>
+                <h3 className="font-semibold mb-2">{t('modal.carDetails')}</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-[#52525B]">Brand:</span>
+                    <span className="text-[#52525B]">{t('modal.brand')}:</span>
                     <span>{selectedCar.brand}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#52525B]">Model:</span>
+                    <span className="text-[#52525B]">{t('modal.model')}:</span>
                     <span>{selectedCar.model}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#52525B]">Year:</span>
+                    <span className="text-[#52525B]">{t('modal.year')}:</span>
                     <span>{selectedCar.year}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#52525B]">Color:</span>
+                    <span className="text-[#52525B]">{t('modal.color')}:</span>
                     <span>{selectedCar.color}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#52525B]">Transmission:</span>
+                    <span className="text-[#52525B]">{t('modal.transmission')}:</span>
                     <span>{selectedCar.transmission}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#52525B]">Seats:</span>
+                    <span className="text-[#52525B]">{t('modal.seats')}:</span>
                     <span>{selectedCar.seats}</span>
                   </div>
                 </div>
               </div>
               
               <div>
-                <h3 className="font-semibold mb-2">Owner Information</h3>
+                <h3 className="font-semibold mb-2">{t('modal.ownerInfo')}</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-[#52525B]">Name:</span>
+                    <span className="text-[#52525B]">{t('modal.name')}:</span>
                     <span>{selectedCar.owner.name}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#52525B]">Email:</span>
+                    <span className="text-[#52525B]">{t('modal.email')}:</span>
                     <span>{selectedCar.owner.email}</span>
                   </div>
                 </div>
                 
-                <h3 className="font-semibold mt-4 mb-2">Statistics</h3>
+                <h3 className="font-semibold mt-4 mb-2">{t('modal.statistics')}</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-[#52525B]">Total Bookings:</span>
+                    <span className="text-[#52525B]">{t('modal.totalBookings')}:</span>
                     <span>{selectedCar.totalBookings}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#52525B]">Total Revenue:</span>
+                    <span className="text-[#52525B]">{t('modal.totalRevenue')}:</span>
                     <span>${selectedCar.totalRevenue}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#52525B]">Rating:</span>
+                    <span className="text-[#52525B]">{t('modal.rating')}:</span>
                     <span>{selectedCar.rating} ⭐</span>
                   </div>
                 </div>
@@ -506,12 +508,12 @@ const CarListingsPage = () => {
                 }}
                 className="flex-1 px-3 py-2 border border-[#E4E4E7] rounded-lg"
               >
-                <option value="available">Available</option>
-                <option value="booked">Booked</option>
-                <option value="maintenance">Maintenance</option>
+                <option value="available">{t('status.available')}</option>
+                <option value="booked">{t('status.booked')}</option>
+                <option value="maintenance">{t('status.maintenance')}</option>
               </select>
               <Button variant="secondary" onClick={() => setShowViewModal(false)}>
-                Close
+                {t('modal.close')}
               </Button>
             </div>
           </>
@@ -525,16 +527,16 @@ const CarListingsPage = () => {
             <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-8 h-8 text-red-600" />
             </div>
-            <h2 className="text-xl font-bold mb-2">Delete Car Listing</h2>
+            <h2 className="text-xl font-bold mb-2">{t('modal.deleteTitle')}</h2>
             <p className="text-[#52525B] mb-6">
-              Are you sure you want to delete "{selectedCar.name}"? This action cannot be undone.
+              {t('modal.deleteMessage', { name: selectedCar.name })}
             </p>
             <div className="flex gap-3">
               <Button variant="danger" onClick={handleDeleteCar} className="flex-1">
-                Yes, Delete
+                {t('modal.yesDelete')}
               </Button>
               <Button variant="ghost" onClick={() => setShowDeleteModal(false)} className="flex-1">
-                Cancel
+                {t('modal.cancel')}
               </Button>
             </div>
           </div>

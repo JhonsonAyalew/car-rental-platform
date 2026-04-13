@@ -3,12 +3,24 @@ import { useTranslation } from 'react-i18next';
 export const useTranslate = () => {
   const { t, i18n } = useTranslation();
   
-  const changeLanguage = (lang) => {
-    i18n.changeLanguage(lang);
-    localStorage.setItem('language', lang);
+  const translate = (key, options = {}) => {
+    return t(key, options);
   };
   
-  const currentLanguage = i18n.language;
+  const getCurrentLanguage = () => i18n.language;
   
-  return { t, changeLanguage, currentLanguage };
+  const isAmharic = () => i18n.language === 'am';
+  
+  const isEnglish = () => i18n.language === 'en';
+  
+  return {
+    t: translate,
+    i18n,
+    currentLanguage: getCurrentLanguage(),
+    isAmharic: isAmharic(),
+    isEnglish: isEnglish(),
+    changeLanguage: (lang) => i18n.changeLanguage(lang)
+  };
 };
+
+export default useTranslate;
