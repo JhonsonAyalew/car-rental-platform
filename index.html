@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Heavy Equipment Rental Platform</title>
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom design system overrides -->
+    <style>
+      /* Design System - Professional Black + Orange + White Theme */
+      :root {
+        /* Primary colors - Orange */
+        --primary: #F97456;
+        --primary-hover: #EA580C;
+        --primary-light: #FFF7ED;
+        --primary-dark: #C2410C;
+        
+        /* Dark mode colors */
+        --dark-bg: #0F0F0F;
+        --dark-surface: #1A1A1A;
+        --dark-subtle: #262626;
+        --dark-border: #333333;
+        
+        /* Light mode colors */
+        --light-bg: #FAFAFA;
+        --light-surface: #FFFFFF;
+        --light-subtle: #F4F4F5;
+        --light-border: #E4E4E7;
+        
+        /* Text colors */
+        --text-primary-light: #18181B;
+        --text-secondary-light: #52525B;
+        --text-muted-light: #A1A1AA;
+        
+        --text-primary-dark: #FAFAFA;
+        --text-secondary-dark: #A1A1AA;
+        --text-muted-dark: #71717A;
+        
+        /* Status colors */
+        --status-pending-bg: #FEF3C7;
+        --status-pending-text: #92400E;
+        --status-approved-bg: #DCFCE7;
+        --status-approved-text: #166534;
+        --status-rejected-bg: #FEE2E2;
+        --status-rejected-text: #991B1B;
+        --status-completed-bg: #DBEAFE;
+        --status-completed-text: #1E40AF;
+        --status-cancelled-bg: #F4F4F5;
+        --status-cancelled-text: #71717A;
+        --status-review-bg: #F3E8FF;
+        --status-review-text: #6B21A8;
+        
+        /* Shadows */
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+      }
+      
+      /* Light mode (default) */
+      :root {
+        --bg-primary: var(--light-bg);
+        --bg-surface: var(--light-surface);
+        --bg-subtle: var(--light-subtle);
+        --border: var(--light-border);
+        --text-primary: var(--text-primary-light);
+        --text-secondary: var(--text-secondary-light);
+        --text-muted: var(--text-muted-light);
+      }
+      
+      /* Dark mode */
+      .dark {
+        --bg-primary: var(--dark-bg);
+        --bg-surface: var(--dark-surface);
+        --bg-subtle: var(--dark-subtle);
+        --border: var(--dark-border);
+        --text-primary: var(--text-primary-dark);
+        --text-secondary: var(--text-secondary-dark);
+        --text-muted: var(--text-muted-dark);
+      }
+      
+      * {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      }
+      
+      body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background: var(--bg-subtle);
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 4px;
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-hover);
+      }
+      
+      /* Focus ring - accessible */
+      *:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+      }
+      
+      /* Smooth transitions */
+      button, a, input, select, textarea {
+        transition: all 0.2s ease;
+      }
+      
+      /* Card styles */
+      .card {
+        background-color: var(--bg-surface);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+      }
+      
+      /* Button styles */
+      .btn-primary {
+        background-color: var(--primary);
+        color: white;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: none;
+        cursor: pointer;
+      }
+      .btn-primary:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-1px);
+      }
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+      
+      .btn-secondary {
+        background-color: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+      }
+      .btn-secondary:hover {
+        background-color: var(--primary-light);
+        transform: translateY(-1px);
+      }
+      
+      .btn-outline {
+        background-color: transparent;
+        color: var(--text-secondary);
+        border: 1px solid var(--border);
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+      }
+      .btn-outline:hover {
+        background-color: var(--bg-subtle);
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      
+      .btn-danger {
+        background-color: #DC2626;
+        color: white;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: none;
+        cursor: pointer;
+      }
+      .btn-danger:hover {
+        background-color: #B91C1C;
+      }
+      
+      .btn-ghost {
+        background-color: transparent;
+        color: var(--text-secondary);
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+      }
+      .btn-ghost:hover {
+        background-color: var(--bg-subtle);
+        color: var(--primary);
+      }
+      
+      /* Form inputs */
+      .input-field {
+        width: 100%;
+        padding: 12px 16px;
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+        color: var(--text-primary);
+        transition: all 0.2s;
+      }
+      .input-field:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+      }
+      .input-field.error {
+        border-color: #DC2626;
+      }
+      
+      /* Badges */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        gap: 6px;
+      }
+      .badge-pending { background-color: #FEF3C7; color: #92400E; }
+      .badge-approved { background-color: #DCFCE7; color: #166534; }
+      .badge-rejected { background-color: #FEE2E2; color: #991B1B; }
+      .badge-completed { background-color: #DBEAFE; color: #1E40AF; }
+      .badge-cancelled { background-color: #F4F4F5; color: #71717A; }
+      .badge-review { background-color: #F3E8FF; color: #6B21A8; }
+      
+      /* Dark mode badge adjustments */
+      .dark .badge-pending { background-color: #451A03; color: #FDE68A; }
+      .dark .badge-approved { background-color: #064E3B; color: #86EFAC; }
+      .dark .badge-rejected { background-color: #7F1D1D; color: #FCA5A5; }
+      .dark .badge-completed { background-color: #1E3A8A; color: #93C5FD; }
+      .dark .badge-cancelled { background-color: #3F3F46; color: #A1A1AA; }
+      .dark .badge-review { background-color: #4C1D95; color: #D8B4FE; }
+      
+      /* Gradient text */
+      .gradient-text {
+        background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      
+      /* Glass morphism */
+      .glass {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .dark .glass {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      /* Smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+      }
+      
+      /* Container */
+      .container-custom {
+        max-width: 1280px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      
+      @media (min-width: 640px) {
+        .container-custom {
+          padding-left: 1.5rem;
+          padding-right: 1.5rem;
+        }
+      }
+      
+      @media (min-width: 1024px) {
+        .container-custom {
+          padding-left: 2rem;
+          padding-right: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
