@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // Check if we're using mock mode
-const USE_MOCK = true; // Set to false when you have a real backend
+
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
