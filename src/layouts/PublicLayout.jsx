@@ -68,7 +68,7 @@ const PublicLayout = () => {
   <div className="w-8 h-8 flex items-center justify-center overflow-hidden "
     style={{ background: 'var(--brand)', borderRadius: 'var(--r-sm)' }}>
     <img 
-      src="/logo.jpg" 
+      src="/logo.png" 
       alt="EquipRent Logo" 
       className="w-full h-full object-cover"
     />
