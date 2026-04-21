@@ -219,6 +219,65 @@ export const Divider = ({ label, className = '' }) => (
     {label && <div className="flex-1 h-px" style={{ background: 'var(--border-base)' }} />}
   </div>
 );
+// Add this to your components/ui/index.jsx file
+
+export const Textarea = forwardRef(({
+  label,
+  error,
+  hint,
+  rows = 3,
+  fullWidth = true,
+  className = '',
+  required,
+  id,
+  ...props
+}, ref) => {
+  const textareaId = id || `textarea-${Math.random().toString(36).slice(2)}`;
+
+  return (
+    <div className={`flex flex-col gap-1.5 ${fullWidth ? 'w-full' : ''}`}>
+      {label && (
+        <label htmlFor={textareaId} className="text-sm font-semibold"
+          style={{ color: 'var(--text-secondary)' }}>
+          {label}{required && <span style={{ color: 'var(--danger)' }} className="ml-1">*</span>}
+        </label>
+      )}
+
+      <textarea
+        ref={ref}
+        id={textareaId}
+        rows={rows}
+        {...props}
+        className={[
+          'w-full font-medium transition-all duration-150',
+          'border rounded outline-none resize-y',
+          'px-4 py-2.5 text-sm',
+          'placeholder:text-[--text-faint]',
+          error
+            ? 'border-[--danger] focus:ring-2 focus:ring-[--danger]/20'
+            : 'border-[--border-base] focus:border-[--brand] focus:ring-2 focus:ring-[--brand-muted]',
+          className,
+        ].filter(Boolean).join(' ')}
+        style={{
+          background:  'var(--bg-elevated)',
+          color:       'var(--text-primary)',
+          borderRadius:'var(--r-md)',
+        }}
+      />
+
+      {error && (
+        <p className="text-xs flex items-center gap-1" style={{ color: 'var(--danger)' }}>
+          {error}
+        </p>
+      )}
+      {hint && !error && (
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{hint}</p>
+      )}
+    </div>
+  );
+});
+
+Textarea.displayName = 'Textarea';
 
 /* ── Tooltip ────────────────────────────────── */
 export const Tooltip = ({ children, text, position = 'top' }) => (
