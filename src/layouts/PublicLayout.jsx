@@ -65,7 +65,7 @@ const PublicLayout = () => {
         <div className="max-w-7xl mx-auto px-4 lg:px-8 h-16 flex items-center justify-between gap-4">
          {/* Logo */}
 <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
-  <div className="w-8 h-8 flex items-center justify-center overflow-hidden rounded-sm"
+  <div className="w-8 h-8 flex items-center justify-center overflow-hidden "
     style={{ background: 'var(--brand)', borderRadius: 'var(--r-sm)' }}>
     <img 
       src="/logo.jpg" 
