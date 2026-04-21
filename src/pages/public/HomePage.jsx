@@ -35,7 +35,7 @@ const HomePage = () => {
 
   return (
     <div>
-      {/* ── Hero ── */}
+     {/* ── Hero ── */}
 <section className="relative overflow-hidden py-20 px-4">
   {/* Background shapes */}
   <div className="absolute inset-0 pointer-events-none">
@@ -89,23 +89,34 @@ const HomePage = () => {
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, delay: 0.4 }}
-        className="flex-1 w-full flex justify-center items-center"
+        className="flex-1 w-full lg:w-auto"
       >
-        <div className="relative">
+        <div className="relative flex justify-center items-center">
+          <img 
+            src="/logo.png" 
+            alt="Heavy Duty Excavator" 
+            className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-full h-auto object-contain"
+            style={{ 
+              filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.15))',
+            }}
+          />
+          
+          {/* Optional floating animation */}
           <style>{`
             @keyframes float {
               0%, 100% { transform: translateY(0px); }
               50% { transform: translateY(-15px); }
             }
-            .hero-excavator {
+            .hero-image {
               animation: float 5s ease-in-out infinite;
             }
           `}</style>
           
+          {/* Apply animation class to img */}
           <img 
             src="/scavator.png" 
             alt="Heavy Duty Excavator" 
-            className="hero-excavator w-full max-w-[280px] sm:max-w-[350px] md:max-w-[450px] lg:max-w-[500px] xl:max-w-[550px] h-auto object-contain"
+            className="hero-image w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-full h-auto object-contain absolute top-0 left-0 opacity-0 pointer-events-none"
             style={{ 
               filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.15))',
             }}
