@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle, XCircle, MapPin, Tag, DollarSign, Calendar } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { StatusBadge, Badge, Textarea } from '../../components/ui/index.jsx';
+import { Textarea } from '../../components/ui/Textarea.jsx';
 import { useNotification } from '../../context/NotificationContext';
 
 const MOCK_SUBMISSION = {
