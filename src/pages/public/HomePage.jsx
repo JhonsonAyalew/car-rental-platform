@@ -55,11 +55,11 @@ const HomePage = () => {
             </motion.div>
 
             <motion.h1 variants={fadeUp} custom={1} initial="hidden" animate="show"
-              className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-5"
-              style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
-              {t('hero.title') || 'Rent Heavy Equipment'}<br />
-              <span style={{ color: 'var(--brand)' }}>Across Ethiopia</span>
-            </motion.h1>
+  className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-5"
+  style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
+  {t('hero.title') || 'Rent Heavy Equipment'}<br />
+  <span style={{ color: 'var(--brand)' }}>For Your Construction Needs</span>
+</motion.h1>
 
             <motion.p variants={fadeUp} custom={2} initial="hidden" animate="show"
               className="text-lg mb-8 max-w-xl" style={{ color: 'var(--text-secondary)' }}>
