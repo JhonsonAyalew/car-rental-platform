@@ -63,13 +63,13 @@ const PublicLayout = () => {
         }}
       >
         <div className="max-w-7xl mx-auto px-4 lg:px-8 h-16 flex items-center justify-between gap-4">
-        {/* Logo */}
+       {/* Logo - Wider container for horizontal logo */}
 <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
-  <div className="w-8 h-8 flex items-center justify-center">
+  <div className="w-10 h-8 flex items-center justify-center">
     <img 
       src="/logo.png" 
       alt="Concrete Logo" 
-      className="w-auto h-full object-contain"
+      className="w-full h-auto object-contain"
     />
   </div>
   <span className="font-black text-base" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
