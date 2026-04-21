@@ -36,97 +36,48 @@ const HomePage = () => {
   return (
     <div>
      {/* ── Hero ── */}
-<section className="relative overflow-hidden py-20 px-4">
-  {/* Background shapes */}
-  <div className="absolute inset-0 pointer-events-none">
-    <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-[0.06]"
-      style={{ background: 'var(--brand)', filter: 'blur(80px)' }} />
-    <div className="absolute bottom-0 right-1/4 w-72 h-72 rounded-full opacity-[0.04]"
-      style={{ background: '#8b5cf6', filter: 'blur(60px)' }} />
-  </div>
-
-  <div className="max-w-7xl mx-auto relative">
-    {/* Flex container for left text and right image */}
-    <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-      
-      {/* Left Content */}
-      <div className="flex-1 max-w-3xl">
-        <motion.div variants={fadeUp} initial="hidden" animate="show"
-          className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 text-xs font-bold border"
-          style={{ background: 'var(--brand-muted)', borderColor: 'var(--brand-border)', color: 'var(--brand)', borderRadius: '100px' }}>
-          <Zap className="w-3 h-3" />
-          {t('hero.badge') || "Ethiopia's #1 Equipment Rental Platform"}
-        </motion.div>
-
-        <motion.h1 variants={fadeUp} custom={1} initial="hidden" animate="show"
-          className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-5"
-          style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
-          {t('hero.title') || 'Rent Heavy Equipment'}<br />
-          <span style={{ color: 'var(--brand)' }}>Across Ethiopia</span>
-        </motion.h1>
-
-        <motion.p variants={fadeUp} custom={2} initial="hidden" animate="show"
-          className="text-lg mb-8 max-w-xl" style={{ color: 'var(--text-secondary)' }}>
-          {t('hero.subtitle') || 'Connect with verified equipment owners. Book excavators, trucks, cranes and more — fast and affordable.'}
-        </motion.p>
-
-        <motion.div variants={fadeUp} custom={3} initial="hidden" animate="show" className="flex flex-wrap gap-3">
-          <Link to="/search">
-            <Button size="xl" rightIcon={<ArrowRight className="w-5 h-5" />}>
-              {t('hero.cta') || 'Browse Equipment'}
-            </Button>
-          </Link>
-          <Link to="/register">
-            <Button size="xl" variant="outline">
-              {t('hero.secondary') || 'List Your Equipment'}
-            </Button>
-          </Link>
-        </motion.div>
-      </div>
-
-      {/* Right Content - Excavator Image */}
-      <motion.div 
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
-        className="flex-1 w-full lg:w-auto"
-      >
-        <div className="relative flex justify-center items-center">
-          <img 
-            src="/logo.png" 
-            alt="Heavy Duty Excavator" 
-            className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-full h-auto object-contain"
-            style={{ 
-              filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.15))',
-            }}
-          />
-          
-          {/* Optional floating animation */}
-          <style>{`
-            @keyframes float {
-              0%, 100% { transform: translateY(0px); }
-              50% { transform: translateY(-15px); }
-            }
-            .hero-image {
-              animation: float 5s ease-in-out infinite;
-            }
-          `}</style>
-          
-          {/* Apply animation class to img */}
-          <img 
-            src="/scavator.png" 
-            alt="Heavy Duty Excavator" 
-            className="hero-image w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-full h-auto object-contain absolute top-0 left-0 opacity-0 pointer-events-none"
-            style={{ 
-              filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.15))',
-            }}
-          />
+      <section className="relative overflow-hidden py-20 px-4">
+        {/* Background shapes */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-[0.06]"
+            style={{ background: 'var(--brand)', filter: 'blur(80px)' }} />
+          <div className="absolute bottom-0 right-1/4 w-72 h-72 rounded-full opacity-[0.04]"
+            style={{ background: '#8b5cf6', filter: 'blur(60px)' }} />
         </div>
-      </motion.div>
 
-    </div>
-  </div>
-</section>
+        <div className="max-w-7xl mx-auto relative">
+          <div className="max-w-3xl">
+            <motion.div variants={fadeUp} initial="hidden" animate="show"
+              className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 text-xs font-bold border"
+              style={{ background: 'var(--brand-muted)', borderColor: 'var(--brand-border)', color: 'var(--brand)', borderRadius: '100px' }}>
+              <Zap className="w-3 h-3" />
+              {t('hero.badge') || "Ethiopia's #1 Equipment Rental Platform"}
+            </motion.div>
+
+            <motion.h1 variants={fadeUp} custom={1} initial="hidden" animate="show"
+              className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-5"
+              style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>
+              {t('hero.title') || 'Rent Heavy Equipment'}<br />
+              <span style={{ color: 'var(--brand)' }}>Across Ethiopia</span>
+            </motion.h1>
+
+            <motion.p variants={fadeUp} custom={2} initial="hidden" animate="show"
+              className="text-lg mb-8 max-w-xl" style={{ color: 'var(--text-secondary)' }}>
+              {t('hero.subtitle') || 'Connect with verified equipment owners. Book excavators, trucks, cranes and more — fast and affordable.'}
+            </motion.p>
+
+            <motion.div variants={fadeUp} custom={3} initial="hidden" animate="show" className="flex flex-wrap gap-3">
+              <Link to="/search">
+                <Button size="xl" rightIcon={<ArrowRight className="w-5 h-5" />}>
+                  {t('hero.cta') || 'Browse Equipment'}
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button size="xl" variant="outline">
+                  {t('hero.secondary') || 'List Your Equipment'}
+                </Button>
+              </Link>
+            </motion.div>
 
             {/* Stats */}
             <motion.div variants={fadeUp} custom={4} initial="hidden" animate="show" className="flex flex-wrap gap-6 mt-10 pt-8 border-t" style={{ borderColor: 'var(--border-base)' }}>
