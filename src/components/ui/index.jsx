@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────────
    All small UI primitives in one file
    ───────────────────────────────────────────── */
-import React, { useEffect } from 'react';
+import React, { useEffect, forwardRef } from 'react';
 import { X } from 'lucide-react';
 
 /* ── Card ───────────────────────────────────── */
