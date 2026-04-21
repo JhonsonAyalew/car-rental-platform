@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/',                    // ← Add this line
+  base: '/',           // ← This fixes path issues in build
   server: {
-    port: 3000,                 // optional: you can change port if you want
-  },
+    port: 5173,        // default Vite port (you can change if you want)
+    open: true         // automatically opens browser
+  }
 })
